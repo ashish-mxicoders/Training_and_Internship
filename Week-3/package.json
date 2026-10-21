@@ -1,0 +1,25 @@
+{
+  "name": "week-3-database-engineering",
+  "version": "1.0.0",
+  "description": "Week 3 Internship Task: Relational Database Design, Normalization, and Complex SQL Queries with Neon PostgreSQL",
+  "main": "scripts/runner.js",
+  "scripts": {
+    "test-db": "node scripts/runner.js test",
+    "setup": "node scripts/runner.js setup",
+    "run-queries": "node scripts/runner.js run-all",
+    "query": "node scripts/runner.js query"
+  },
+  "keywords": [
+    "postgresql",
+    "neon-db",
+    "sql",
+    "normalization",
+    "window-functions"
+  ],
+  "author": "Ashish",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "pg": "^8.13.1"
+  }
+}
