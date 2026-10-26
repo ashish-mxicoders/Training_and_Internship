@@ -22,6 +22,7 @@ export function IconRail() {
   const { showComingSoon, logoutUser } = useTickets();
 
   const isTicketsActive = pathname === '/' || pathname.startsWith('/tickets');
+  const isInboxActive = pathname === '/inbox';
   const isAnalyticsActive = pathname === '/analytics';
   const isCustomersActive = pathname === '/customers';
   const isSettingsActive = pathname === '/settings';
@@ -39,10 +40,16 @@ export function IconRail() {
 
       {/* Navigation Icons */}
       <nav className="flex-1 flex flex-col items-center gap-2">
+        {/* Inbox (Coming Soon) */}
         <Link
-          href="/tickets"
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors"
-          title="Inbox"
+          href="/inbox"
+          onClick={() => showComingSoon('Universal Shared Inbox')}
+          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors cursor-pointer ${
+            isInboxActive
+              ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs'
+              : 'text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60'
+          }`}
+          title="Inbox (Coming Soon)"
         >
           <Inbox className="w-5 h-5" />
         </Link>

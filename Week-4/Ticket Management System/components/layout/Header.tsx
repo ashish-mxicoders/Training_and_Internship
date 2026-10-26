@@ -59,6 +59,8 @@ export function Header() {
     currentPageTitle = 'Customers';
   } else if (pathname === '/settings') {
     currentPageTitle = 'Settings';
+  } else if (pathname === '/inbox') {
+    currentPageTitle = 'Inbox';
   }
 
   return (
