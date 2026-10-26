@@ -1,0 +1,48 @@
+# =====================================================================
+# TICKET MANAGEMENT SYSTEM - SEED USER CREDENTIALS
+# Neon PostgreSQL Seed Dataset
+# All accounts default password: 123456
+# =====================================================================
+
+# ---------------------------------------------------------------------
+# 1. ADMIN USERS (Total: 8)
+# Full access to all tickets, status updates, assignees, and deletion
+# ---------------------------------------------------------------------
+admin@acme.io
+jason.duong@acme.io
+annie.nguyen@acme.io
+nhi.pham@acme.io
+thanh.le@acme.io
+lam.tran@acme.io
+bao.truong@acme.io
+michael.huang@acme.io
+
+# ---------------------------------------------------------------------
+# 2. CUSTOMER USERS (Total: 5)
+# Restricted access: can only view own tickets, create tickets (cannot delete)
+# ---------------------------------------------------------------------
+customer@client.com
+m.vance@vancetech.io
+elena@novasystems.de
+brian@sentinelguard.com
+aaliyah@crestline.org
+
+# =====================================================================
+# DETAILED USER BREAKDOWN WITH NAMES & COMPANIES
+# =====================================================================
+# ADMINS:
+# - admin@acme.io          | Admin User    | Acme Support  | Password: 123456
+# - jason.duong@acme.io     | Jason Duong   | Acme Support  | Password: 123456
+# - annie.nguyen@acme.io    | Annie Nguyen  | Acme Support  | Password: 123456
+# - nhi.pham@acme.io        | Nhi Pham      | Acme Support  | Password: 123456
+# - thanh.le@acme.io        | Thanh Le      | Acme Support  | Password: 123456
+# - lam.tran@acme.io        | Lam Tran      | Acme Support  | Password: 123456
+# - bao.truong@acme.io      | Bao Truong    | Acme Support  | Password: 123456
+# - michael.huang@acme.io   | Michael Huang | Acme Support  | Password: 123456
+
+# CUSTOMERS:
+# - customer@client.com     | Sarah Jenkins | Pine & Peak Inc. | Password: 123456
+# - m.vance@vancetech.io    | Marcus Vance  | Vance Logic      | Password: 123456
+# - elena@novasystems.de    | Elena Rostova | Nova Systems     | Password: 123456
+# - brian@sentinelguard.com | Brian Thorne  | Sentinel Guard   | Password: 123456
+# - aaliyah@crestline.org   | Aaliyah Patel | Crestline Corp   | Password: 123456
