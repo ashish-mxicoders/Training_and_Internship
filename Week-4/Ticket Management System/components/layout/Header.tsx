@@ -25,6 +25,9 @@ export function Header() {
     setIsSidebarCollapsed,
     searchQuery,
     setSearchQuery,
+    showComingSoon,
+    currentUser,
+    switchUserRole,
   } = useTickets();
 
   // Dynamic breadcrumb text
@@ -93,7 +96,8 @@ export function Header() {
         {/* Notification Bell */}
         <button
           type="button"
-          className="p-2 rounded-xl text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors relative"
+          onClick={() => showComingSoon('Activity & Alert Notifications')}
+          className="p-2 rounded-xl text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors relative cursor-pointer"
           title="Notifications"
         >
           <Bell className="w-4 h-4" />
@@ -103,7 +107,8 @@ export function Header() {
         {/* Help / Feedback */}
         <button
           type="button"
-          className="p-2 rounded-xl text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors"
+          onClick={() => showComingSoon('Customer Feedback & Support Desk')}
+          className="p-2 rounded-xl text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors cursor-pointer"
           title="Customer Feedback"
         >
           <MessageSquare className="w-4 h-4" />
@@ -114,7 +119,7 @@ export function Header() {
           type="button"
           onClick={toggleTheme}
           aria-label="Toggle Dark / Light Mode"
-          className="p-2 rounded-xl text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition-all active:scale-90"
+          className="p-2 rounded-xl text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition-all active:scale-90 cursor-pointer"
           title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
         >
           {theme === 'light' ? (
@@ -124,19 +129,42 @@ export function Header() {
           )}
         </button>
 
+        {/* Quick Demo Role Switcher */}
+        <button
+          type="button"
+          onClick={() => switchUserRole(currentUser?.role === 'admin' ? 'customer' : 'admin')}
+          className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 transition-colors cursor-pointer"
+          title="Click to toggle between Admin and Customer view"
+        >
+          <span className="text-[10px] text-zinc-400 uppercase">View As:</span>
+          <span
+            className={`px-1.5 py-0.2 rounded-md text-[10px] uppercase font-bold ${
+              currentUser?.role === 'admin'
+                ? 'bg-amber-400 text-zinc-950'
+                : 'bg-sky-500 text-white'
+            }`}
+          >
+            {currentUser?.role || 'Admin'}
+          </span>
+        </button>
+
         {/* User Profile Avatar */}
         <div className="pl-1 sm:pl-2">
           <Link
             href="/settings"
-            className="flex items-center gap-2 p-0.5 rounded-full hover:ring-2 hover:ring-amber-400 transition-all"
-            title={`${CURRENT_USER.name} (${CURRENT_USER.role})`}
+            className="flex items-center gap-2 p-0.5 rounded-full hover:ring-2 hover:ring-amber-400 transition-all cursor-pointer"
+            title={`${currentUser?.name || 'User'} (${currentUser?.role || 'Admin'})`}
           >
-            <div className="relative w-8 h-8 rounded-full overflow-hidden bg-zinc-200 ring-1 ring-zinc-300 dark:ring-zinc-700">
-              <img
-                src={CURRENT_USER.avatar || '/images/avatar-jason.jpg'}
-                alt={CURRENT_USER.name}
-                className="w-full h-full object-cover"
-              />
+            <div className="relative w-8 h-8 rounded-full overflow-hidden bg-zinc-200 ring-1 ring-zinc-300 dark:ring-zinc-700 flex items-center justify-center font-bold text-xs text-zinc-700">
+              {currentUser?.avatar ? (
+                <img
+                  src={currentUser.avatar}
+                  alt={currentUser.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span>{currentUser?.initials || 'US'}</span>
+              )}
             </div>
           </Link>
         </div>

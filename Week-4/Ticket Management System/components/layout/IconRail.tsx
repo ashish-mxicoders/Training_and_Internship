@@ -15,9 +15,11 @@ import {
   LogOut,
   Command,
 } from 'lucide-react';
+import { useTickets } from '@/lib/ticket-context';
 
 export function IconRail() {
   const pathname = usePathname();
+  const { showComingSoon, logoutUser } = useTickets();
 
   const isTicketsActive = pathname === '/' || pathname.startsWith('/tickets');
   const isAnalyticsActive = pathname === '/analytics';
@@ -58,36 +60,31 @@ export function IconRail() {
           <Ticket className="w-5 h-5" />
         </Link>
 
-        {/* Single Profile / Assignee View */}
-        <Link
-          href="/analytics"
-          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
-            isAnalyticsActive
-              ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100'
-              : 'text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60'
-          }`}
+        {/* Single Profile / Analytics View */}
+        <button
+          type="button"
+          onClick={() => showComingSoon('Analytics & SLA Performance')}
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors cursor-pointer"
           title="Analytics & SLA Performance"
         >
           <User className="w-5 h-5" />
-        </Link>
+        </button>
 
         {/* Customers / Teams */}
-        <Link
-          href="/customers"
-          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
-            isCustomersActive
-              ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100'
-              : 'text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60'
-          }`}
+        <button
+          type="button"
+          onClick={() => showComingSoon('Customers & Organizations Directory')}
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors cursor-pointer"
           title="Customers & Organizations"
         >
           <Users className="w-5 h-5" />
-        </Link>
+        </button>
 
         {/* Knowledge Base */}
         <button
           type="button"
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors"
+          onClick={() => showComingSoon('Knowledge Base & Docs')}
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors cursor-pointer"
           title="Knowledge Base & Docs"
         >
           <BookOpen className="w-5 h-5" />
@@ -96,7 +93,8 @@ export function IconRail() {
         {/* Saved Articles */}
         <button
           type="button"
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors"
+          onClick={() => showComingSoon('Bookmarks & Saved Views')}
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors cursor-pointer"
           title="Bookmarks & Saved Views"
         >
           <Bookmark className="w-5 h-5" />
@@ -105,7 +103,8 @@ export function IconRail() {
         {/* Team Chat */}
         <button
           type="button"
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors"
+          onClick={() => showComingSoon('Team Discussions & Chat')}
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors cursor-pointer"
           title="Team Discussions"
         >
           <MessageSquare className="w-5 h-5" />
@@ -116,7 +115,7 @@ export function IconRail() {
       <div className="flex flex-col items-center gap-2 pt-4 border-t border-zinc-100 dark:border-zinc-800/60">
         <Link
           href="/settings"
-          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
+          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors cursor-pointer ${
             isSettingsActive
               ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100'
               : 'text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60'
@@ -128,9 +127,10 @@ export function IconRail() {
 
         <button
           type="button"
-          onClick={() => {
+          onClick={async () => {
             if (confirm('Are you sure you want to log out?')) {
-              alert('You have logged out successfully.');
+              await logoutUser();
+              window.location.href = '/login';
             }
           }}
           className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"

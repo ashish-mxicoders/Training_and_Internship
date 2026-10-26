@@ -1,21 +1,38 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
+// =====================================================================
+// Ticket Context & Global State Management
+// Beginner-friendly React Context without external state libraries.
+//
+// Key Features:
+// 1. Neon PostgreSQL Backend Synchronization (via Next.js /api routes)
+// 2. Role-Based Access Control (Admin vs Customer)
+// 3. Status pre-selection when clicking '+' on Kanban columns
+// 4. Custom Theme-matched "Coming Soon" Alert Modal
+// 5. Dynamic Category Management (Add new categories to DB)
+// =====================================================================
+
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+} from 'react';
 import {
   Ticket,
-  TicketCategory,
-  TicketPriority,
   TicketStatus,
-  TicketStats,
+  TicketPriority,
+  TicketCategory,
   TicketChannel,
   TicketHealth,
   ViewFilter,
+  TicketStats,
   TicketComment,
 } from '@/types/ticket';
 import { INITIAL_TICKETS, CURRENT_USER, TEAM_MEMBERS } from '@/lib/mock-data';
-
-const STORAGE_KEY = 'helpdesk_tickets_v1';
-const THEME_KEY = 'helpdesk_theme_v1';
+import { ComingSoonModal } from '@/components/ui/CustomModal';
 
 export type ColumnSortType =
   | 'none'
@@ -23,19 +40,49 @@ export type ColumnSortType =
   | 'oldest'
   | 'priority_high'
   | 'priority_low'
-  | 'health';
+  | 'health'
+  | 'priority-desc'
+  | 'priority-asc'
+  | 'due-asc'
+  | 'due-desc'
+  | 'title-asc'
+  | 'title-desc';
+
+export interface AppUser {
+  id: string;
+  name: string;
+  email: string;
+  role: 'admin' | 'customer';
+  avatar?: string;
+  initials: string;
+  company?: string;
+  tier?: string;
+}
+
+export interface CategoryItem {
+  id: string;
+  name: string;
+}
 
 interface TicketContextType {
   tickets: Ticket[];
   filteredTickets: Ticket[];
-  stats: TicketStats;
   selectedTicket: Ticket | null;
   setSelectedTicket: (ticket: Ticket | null) => void;
-  // Filters
+  stats: TicketStats;
+  isLoaded: boolean;
+
+  // Authentication & RBAC
+  currentUser: AppUser | null;
+  loginUser: (user: AppUser) => void;
+  logoutUser: () => Promise<void>;
+  switchUserRole: (role: 'admin' | 'customer') => void;
+
+  // Filter State
   viewFilter: ViewFilter;
   setViewFilter: (view: ViewFilter) => void;
-  categoryFilter: TicketCategory | 'all';
-  setCategoryFilter: (category: TicketCategory | 'all') => void;
+  categoryFilter: string | 'all';
+  setCategoryFilter: (category: string | 'all') => void;
   priorityFilter: TicketPriority | 'all';
   setPriorityFilter: (priority: TicketPriority | 'all') => void;
   statusFilter: TicketStatus | 'all';
@@ -52,35 +99,73 @@ interface TicketContextType {
   activeFilterCount: number;
   activeViewMode: 'kanban' | 'table';
   setActiveViewMode: (mode: 'kanban' | 'table') => void;
+
   // Column Sorting
   columnSorts: Record<TicketStatus, ColumnSortType>;
   setColumnSort: (status: TicketStatus, sort: ColumnSortType) => void;
+
   // Actions
-  addTicket: (newTicket: Omit<Ticket, 'id' | 'createdAt' | 'updatedAt' | 'comments'>) => Ticket;
-  updateTicketStatus: (id: string, status: TicketStatus) => void;
-  updateTicket: (id: string, updates: Partial<Ticket>) => void;
-  addComment: (ticketId: string, content: string, isInternal: boolean) => void;
-  deleteTicket: (id: string) => void;
-  resetToDefaults: () => void;
+  addTicket: (newTicket: any) => Promise<Ticket>;
+  updateTicketStatus: (id: string, status: TicketStatus) => Promise<void>;
+  updateTicket: (id: string, updates: Partial<Ticket>) => Promise<void>;
+  addComment: (ticketId: string, content: string) => Promise<void>;
+  deleteTicket: (id: string) => Promise<{ success: boolean; error?: string }>;
+  refreshTickets: () => Promise<void>;
+
+  // Categories
+  categories: CategoryItem[];
+  addCategory: (name: string) => Promise<boolean>;
+
   // Layout & UI
   theme: 'light' | 'dark';
   toggleTheme: () => void;
   isSidebarCollapsed: boolean;
   setIsSidebarCollapsed: (collapsed: boolean | ((prev: boolean) => boolean)) => void;
+
+  // Modal Control (with column status pre-selection)
   isNewTicketModalOpen: boolean;
   setIsNewTicketModalOpen: (open: boolean) => void;
+  initialModalStatus: TicketStatus;
+  openNewTicketWithStatus: (status: TicketStatus) => void;
+
+  // Custom "Coming Soon" Alert
+  showComingSoon: (featureName?: string) => void;
 }
 
 const TicketContext = createContext<TicketContextType | undefined>(undefined);
 
+const THEME_KEY = 'tms_theme_preference';
+
 export function TicketProvider({ children }: { children: React.ReactNode }) {
+  // 1. Current Logged-in User (Defaults to Jason Duong Admin)
+  const [currentUser, setCurrentUser] = useState<AppUser | null>({
+    id: CURRENT_USER.id,
+    name: CURRENT_USER.name,
+    email: CURRENT_USER.email,
+    role: 'admin',
+    avatar: CURRENT_USER.avatar,
+    initials: CURRENT_USER.initials,
+    company: 'Acme Support Desk',
+  });
+
+  // 2. Tickets & Selected Ticket State
   const [tickets, setTickets] = useState<Ticket[]>(INITIAL_TICKETS);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Filter state
+  // 3. Categories State (Loaded from DB)
+  const [categories, setCategories] = useState<CategoryItem[]>([
+    { id: 'technical', name: 'Technical Issue' },
+    { id: 'billing', name: 'Billing' },
+    { id: 'account', name: 'Account & Login' },
+    { id: 'subscription', name: 'Subscription' },
+    { id: 'access', name: 'Access' },
+    { id: 'other', name: 'Other' },
+  ]);
+
+  // 4. Filter State
   const [viewFilter, setViewFilter] = useState<ViewFilter>('all');
-  const [categoryFilter, setCategoryFilter] = useState<TicketCategory | 'all'>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string | 'all'>('all');
   const [priorityFilter, setPriorityFilter] = useState<TicketPriority | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<TicketStatus | 'all'>('all');
   const [healthFilter, setHealthFilter] = useState<TicketHealth | 'all'>('all');
@@ -89,7 +174,7 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeViewMode, setActiveViewMode] = useState<'kanban' | 'table'>('kanban');
 
-  // Column Sort state
+  // 5. Column Sort State
   const [columnSorts, setColumnSorts] = useState<Record<TicketStatus, ColumnSortType>>({
     open: 'none',
     pending: 'none',
@@ -104,68 +189,168 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
     }));
   };
 
-  // UI state
+  // 6. UI & Modals State
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isNewTicketModalOpen, setIsNewTicketModalOpen] = useState(false);
+  const [initialModalStatus, setInitialModalStatus] = useState<TicketStatus>('open');
 
-  // Initialize from sessionStorage and localStorage
+  // Custom Coming Soon Modal state
+  const [comingSoonState, setComingSoonState] = useState<{
+    isOpen: boolean;
+    featureName: string;
+  }>({
+    isOpen: false,
+    featureName: 'This feature',
+  });
+
+  const showComingSoon = useCallback((featureName?: string) => {
+    setComingSoonState({
+      isOpen: true,
+      featureName: featureName || 'This feature',
+    });
+  }, []);
+
+  /**
+   * Helper to open the New Ticket Modal with the status of the clicked column.
+   * User requirement: "+ icon click kiya to status me vo selected aana chahiye"
+   */
+  const openNewTicketWithStatus = useCallback((status: TicketStatus) => {
+    setInitialModalStatus(status);
+    setIsNewTicketModalOpen(true);
+  }, []);
+
+  // 7. Load Categories from DB
+  const loadCategories = useCallback(async () => {
+    try {
+      const res = await fetch('/api/categories');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.categories && data.categories.length > 0) {
+          setCategories(data.categories);
+        }
+      }
+    } catch (e) {
+      console.warn('Could not fetch categories from DB:', e);
+    }
+  }, []);
+
+  // 8. Fetch Tickets from Database (automatically filtered by user role in /api/tickets)
+  const refreshTickets = useCallback(async () => {
+    try {
+      const res = await fetch('/api/tickets');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.tickets && Array.isArray(data.tickets)) {
+          setTickets(data.tickets);
+        }
+      }
+    } catch (e) {
+      console.warn('Could not fetch tickets from DB, using local state:', e);
+    }
+  }, []);
+
+  // 9. Initial Load on Client Mount
   useEffect(() => {
     try {
       if (typeof window !== 'undefined') {
-        const savedTickets = window.sessionStorage.getItem(STORAGE_KEY);
-        if (savedTickets) {
-          setTickets(JSON.parse(savedTickets));
-        }
         const savedTheme = window.localStorage.getItem(THEME_KEY) as 'light' | 'dark' | null;
         if (savedTheme) {
           setTheme(savedTheme);
-        } else {
-          setTheme('light');
         }
         if (window.innerWidth < 768) {
           setIsSidebarCollapsed(true);
         }
       }
     } catch (e) {
-      console.warn('Storage read failed', e);
+      // ignore
     }
-    setIsLoaded(true);
-  }, []);
 
-  // Sync theme changes to <html> element and localStorage
+    // Check if session exists in /api/auth/me
+    fetch('/api/auth/me')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.authenticated && data.user) {
+          setCurrentUser(data.user);
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        refreshTickets();
+        loadCategories();
+        setIsLoaded(true);
+      });
+  }, [refreshTickets, loadCategories]);
+
+  // Sync theme changes to <html> class
   useEffect(() => {
     if (typeof document !== 'undefined') {
       if (theme === 'dark') {
         document.documentElement.classList.add('dark');
-        document.documentElement.setAttribute('data-theme', 'dark');
       } else {
         document.documentElement.classList.remove('dark');
-        document.documentElement.setAttribute('data-theme', 'light');
       }
       try {
         window.localStorage.setItem(THEME_KEY, theme);
-      } catch {}
+      } catch (e) {}
     }
   }, [theme]);
 
-  // Save tickets to sessionStorage
-  useEffect(() => {
-    if (!isLoaded) return;
-    try {
-      window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(tickets));
-    } catch (e) {
-      console.warn('Failed saving tickets to sessionStorage', e);
-    }
-  }, [tickets, isLoaded]);
-
-  // Theme toggle
-  const toggleTheme = () => {
+  const toggleTheme = useCallback(() => {
     setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
-  };
+  }, []);
 
-  // Clear all active filters
-  const clearAllFilters = () => {
+  // User Auth Actions
+  const loginUser = useCallback((user: AppUser) => {
+    setCurrentUser(user);
+    // Refresh tickets for the newly logged-in user
+    setTimeout(() => {
+      refreshTickets();
+    }, 100);
+  }, [refreshTickets]);
+
+  const logoutUser = useCallback(async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (e) {}
+    setCurrentUser(null);
+    setTickets([]);
+  }, []);
+
+  /**
+   * Quick role switcher for demo/testing convenience
+   */
+  const switchUserRole = useCallback((role: 'admin' | 'customer') => {
+    if (role === 'admin') {
+      const adminUser: AppUser = {
+        id: 'usr-1',
+        name: 'Jason Duong',
+        email: 'jason.duong@acme.io',
+        role: 'admin',
+        avatar: '/images/avatar-jason.jpg',
+        initials: 'JD',
+        company: 'Acme Support Desk',
+      };
+      setCurrentUser(adminUser);
+    } else {
+      const customerUser: AppUser = {
+        id: 'cust-1',
+        name: 'Sarah Jenkins',
+        email: 'customer@client.com',
+        role: 'customer',
+        initials: 'SJ',
+        company: 'Pine & Peak Inc.',
+        tier: 'Enterprise',
+      };
+      setCurrentUser(customerUser);
+    }
+    setTimeout(() => {
+      refreshTickets();
+    }, 100);
+  }, [refreshTickets]);
+
+  // Clear filters
+  const clearAllFilters = useCallback(() => {
     setViewFilter('all');
     setCategoryFilter('all');
     setPriorityFilter('all');
@@ -174,7 +359,7 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
     setChannelFilter('all');
     setAssigneeFilter('all');
     setSearchQuery('');
-  };
+  }, []);
 
   // Count active filters
   const activeFilterCount = useMemo(() => {
@@ -199,46 +384,89 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
     searchQuery,
   ]);
 
-  // Add Ticket
-  const addTicket = (
-    newTicketData: Omit<Ticket, 'id' | 'createdAt' | 'updatedAt' | 'comments'>
-  ): Ticket => {
-    const nextNumber = tickets.length + 1;
-    const formattedId = `#-0${nextNumber < 10 ? '0' + nextNumber : nextNumber}`;
+  // Action: Add Ticket (Sends to PostgreSQL backend)
+  const addTicket = async (newTicketData: any): Promise<Ticket> => {
+    const tempId = `#-0${tickets.length + 1 < 10 ? '0' + (tickets.length + 1) : tickets.length + 1}`;
     const today = new Date().toISOString().split('T')[0];
 
-    const ticket: Ticket = {
+    const localTicket: Ticket = {
       ...newTicketData,
-      id: formattedId,
+      id: tempId,
       createdAt: today,
       updatedAt: today,
       comments: [],
     };
 
-    setTickets((prev) => [ticket, ...prev]);
-    return ticket;
+    // Optimistic UI update
+    setTickets((prev) => [localTicket, ...prev]);
+
+    // Send to backend database
+    try {
+      const res = await fetch('/api/tickets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subject: newTicketData.subject,
+          description: newTicketData.description,
+          status: newTicketData.status,
+          priority: newTicketData.priority,
+          category: newTicketData.category,
+          channel: newTicketData.channel,
+          health: newTicketData.health,
+          assigneeId: newTicketData.assignee?.id || null,
+          customerName: newTicketData.customer?.name,
+          companyName: newTicketData.customer?.company,
+          customerEmail: newTicketData.customer?.email,
+          dueDate: newTicketData.dueDate,
+          isEscalated: newTicketData.isEscalated,
+          tags: newTicketData.tags,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.ticket) {
+          // Replace temporary ticket with real DB ticket
+          setTickets((prev) =>
+            prev.map((t) => (t.id === tempId ? data.ticket : t))
+          );
+          return data.ticket;
+        }
+      }
+    } catch (err) {
+      console.warn('API ticket creation failed, kept local:', err);
+    }
+
+    return localTicket;
   };
 
-  // Update Status
-  const updateTicketStatus = (id: string, status: TicketStatus) => {
+  // Action: Update Status (Sends to PostgreSQL backend)
+  const updateTicketStatus = async (id: string, status: TicketStatus) => {
+    // Optimistic update
     setTickets((prev) =>
       prev.map((t) =>
         t.id === id
-          ? {
-              ...t,
-              status,
-              updatedAt: new Date().toISOString().split('T')[0],
-            }
+          ? { ...t, status, updatedAt: new Date().toISOString().split('T')[0] }
           : t
       )
     );
     if (selectedTicket && selectedTicket.id === id) {
       setSelectedTicket((prev) => (prev ? { ...prev, status } : null));
     }
+
+    try {
+      await fetch(`/api/tickets/${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+    } catch (e) {
+      console.warn('Could not sync status to database:', e);
+    }
   };
 
-  // Update Ticket Generic
-  const updateTicket = (id: string, updates: Partial<Ticket>) => {
+  // Action: Update Generic Properties (Sends to PostgreSQL backend)
+  const updateTicket = async (id: string, updates: Partial<Ticket>) => {
     setTickets((prev) =>
       prev.map((t) =>
         t.id === id
@@ -253,20 +481,44 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
     if (selectedTicket && selectedTicket.id === id) {
       setSelectedTicket((prev) => (prev ? { ...prev, ...updates } : null));
     }
+
+    try {
+      await fetch(`/api/tickets/${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: updates.status,
+          priority: updates.priority,
+          health: updates.health,
+          assigneeId: updates.assignee?.id,
+          isEscalated: updates.isEscalated,
+          subject: updates.subject,
+          description: updates.description,
+          dueDate: updates.dueDate,
+        }),
+      });
+    } catch (e) {
+      console.warn('Could not sync update to database:', e);
+    }
   };
 
-  // Add Comment
-  const addComment = (ticketId: string, content: string, isInternal: boolean) => {
+  // Action: Add Comment (Sends to PostgreSQL backend)
+  const addComment = async (ticketId: string, content: string) => {
+    const authorName = currentUser?.name || 'Support Team';
+    const authorInitials = currentUser?.initials || 'ST';
+    const authorAvatar = currentUser?.avatar;
+
     const newComment: TicketComment = {
-      id: `c-${Date.now()}`,
-      authorName: CURRENT_USER.name,
-      authorAvatar: CURRENT_USER.avatar,
-      authorInitials: CURRENT_USER.initials,
-      isInternal,
+      id: `cm-${Date.now()}`,
+      authorName,
+      authorAvatar,
+      authorInitials,
+      isInternal: false,
       content,
       timestamp: 'Just now',
     };
 
+    // Optimistic update
     setTickets((prev) =>
       prev.map((t) =>
         t.id === ticketId
@@ -289,31 +541,84 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
           : null
       );
     }
+
+    try {
+      await fetch(`/api/tickets/${encodeURIComponent(ticketId)}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content,
+          authorName,
+          authorInitials,
+        }),
+      });
+    } catch (e) {
+      console.warn('Could not sync comment to database:', e);
+    }
   };
 
-  // Delete Ticket
-  const deleteTicket = (id: string) => {
+  // Action: Delete Ticket
+  const deleteTicket = async (id: string): Promise<{ success: boolean; error?: string }> => {
+    // If customer, block deletion
+    if (currentUser && currentUser.role === 'customer') {
+      return { success: false, error: 'Customers are not permitted to delete tickets.' };
+    }
+
+    // Optimistic removal
     setTickets((prev) => prev.filter((t) => t.id !== id));
     if (selectedTicket && selectedTicket.id === id) {
       setSelectedTicket(null);
     }
-  };
 
-  // Reset to Defaults
-  const resetToDefaults = () => {
-    setTickets(INITIAL_TICKETS);
-    clearAllFilters();
     try {
-      window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_TICKETS));
-    } catch {}
+      const res = await fetch(`/api/tickets/${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        return { success: false, error: data.error };
+      }
+    } catch (e: any) {
+      console.warn('Could not delete from database:', e);
+    }
+
+    return { success: true };
   };
 
-  // Filtered tickets
+  // Action: Add Category
+  const addCategory = async (name: string): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      });
+      if (res.ok) {
+        await loadCategories();
+        return true;
+      }
+    } catch (e) {
+      console.warn('Failed to add category:', e);
+    }
+    return false;
+  };
+
+  // Filtered Tickets
   const filteredTickets = useMemo(() => {
     return tickets.filter((ticket) => {
-      // View filter
-      if (viewFilter === 'my' && ticket.assignee?.id !== CURRENT_USER.id) {
-        return false;
+      // If Customer, only see tickets matching their email or customer name
+      if (currentUser && currentUser.role === 'customer') {
+        const matchCustomer =
+          ticket.customer?.email?.toLowerCase() === currentUser.email.toLowerCase() ||
+          ticket.customer?.name?.toLowerCase() === currentUser.name.toLowerCase();
+        if (!matchCustomer) return false;
+      }
+
+      // Views filter
+      if (viewFilter === 'my') {
+        if (!ticket.assignee || ticket.assignee.id !== currentUser?.id) {
+          return false;
+        }
       }
       if (viewFilter === 'unassigned' && ticket.assignee !== undefined) {
         return false;
@@ -377,6 +682,7 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
     });
   }, [
     tickets,
+    currentUser,
     viewFilter,
     categoryFilter,
     priorityFilter,
@@ -387,13 +693,22 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
     searchQuery,
   ]);
 
-  // Statistics
+  // Statistics calculation
   const stats: TicketStats = useMemo(() => {
-    const total = tickets.length;
-    const open = tickets.filter((t) => t.status === 'open').length;
-    const pending = tickets.filter((t) => t.status === 'pending').length;
-    const resolved = tickets.filter((t) => t.status === 'resolved').length;
-    const closed = tickets.filter((t) => t.status === 'closed').length;
+    const list =
+      currentUser && currentUser.role === 'customer'
+        ? tickets.filter(
+            (t) =>
+              t.customer?.email?.toLowerCase() === currentUser.email.toLowerCase() ||
+              t.customer?.name?.toLowerCase() === currentUser.name.toLowerCase()
+          )
+        : tickets;
+
+    const total = list.length;
+    const open = list.filter((t) => t.status === 'open').length;
+    const pending = list.filter((t) => t.status === 'pending').length;
+    const resolved = list.filter((t) => t.status === 'resolved').length;
+    const closed = list.filter((t) => t.status === 'closed').length;
 
     return {
       total,
@@ -402,20 +717,29 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
       resolved,
       closed,
       totalChangePct: 17.6,
-      openChangePct: -20.0,
+      openChangePct: -20,
       pendingChangePct: -16.7,
-      resolvedChangePct: 100.0,
+      resolvedChangePct: 100,
     };
-  }, [tickets]);
+  }, [tickets, currentUser]);
 
   return (
     <TicketContext.Provider
       value={{
         tickets,
         filteredTickets,
-        stats,
         selectedTicket,
         setSelectedTicket,
+        stats,
+        isLoaded,
+
+        // Auth & RBAC
+        currentUser,
+        loginUser,
+        logoutUser,
+        switchUserRole,
+
+        // Filter state
         viewFilter,
         setViewFilter,
         categoryFilter,
@@ -436,23 +760,47 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
         activeFilterCount,
         activeViewMode,
         setActiveViewMode,
+
+        // Column sort
         columnSorts,
         setColumnSort,
+
+        // Actions
         addTicket,
         updateTicketStatus,
         updateTicket,
         addComment,
         deleteTicket,
-        resetToDefaults,
+        refreshTickets,
+
+        // Categories
+        categories,
+        addCategory,
+
+        // Layout & UI
         theme,
         toggleTheme,
         isSidebarCollapsed,
         setIsSidebarCollapsed,
+
+        // Modal Control
         isNewTicketModalOpen,
         setIsNewTicketModalOpen,
+        initialModalStatus,
+        openNewTicketWithStatus,
+
+        // Custom Coming Soon Alert
+        showComingSoon,
       }}
     >
       {children}
+
+      {/* Global Custom Coming Soon Modal */}
+      <ComingSoonModal
+        isOpen={comingSoonState.isOpen}
+        onClose={() => setComingSoonState((prev) => ({ ...prev, isOpen: false }))}
+        featureName={comingSoonState.featureName}
+      />
     </TicketContext.Provider>
   );
 }

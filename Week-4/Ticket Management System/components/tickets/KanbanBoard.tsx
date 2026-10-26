@@ -24,6 +24,7 @@ export function KanbanBoard() {
     setSelectedTicket,
     updateTicketStatus,
     setIsNewTicketModalOpen,
+    openNewTicketWithStatus,
     columnSorts,
     setColumnSort,
   } = useTickets();
@@ -167,8 +168,8 @@ export function KanbanBoard() {
               <div className="flex items-center gap-1 relative">
                 <button
                   type="button"
-                  onClick={() => setIsNewTicketModalOpen(true)}
-                  className="p-1 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-200/50 dark:hover:bg-zinc-800 transition-colors"
+                  onClick={() => openNewTicketWithStatus(col.id)}
+                  className="p-1 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-200/50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                   title={`Add ticket to ${col.label}`}
                 >
                   <Plus className="w-3.5 h-3.5" />

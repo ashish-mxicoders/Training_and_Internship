@@ -17,7 +17,6 @@ export default function SettingsPage() {
   const {
     theme,
     toggleTheme,
-    resetToDefaults,
     tickets,
   } = useTickets();
 
@@ -113,30 +112,42 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* SECTION: Session Storage & Reset */}
+      {/* SECTION: Neon PostgreSQL Database & Seed Restoration */}
       <div className="p-6 rounded-3xl bg-white dark:bg-[#151924] border border-zinc-200/80 dark:border-zinc-800/80 shadow-xs space-y-4">
         <div>
-          <h2 className="text-sm font-bold text-zinc-900 dark:text-white">
-            Session Storage & Demo State
+          <h2 className="text-sm font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+            <span>Neon PostgreSQL Database</span>
+            <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 font-semibold border border-emerald-200 dark:border-emerald-900/60">
+              Connected
+            </span>
           </h2>
-          <p className="text-xs text-zinc-500 mt-0.5">
-            Currently tracking {tickets.length} tickets locally in browser session storage. You can restore the exact initial 20 tickets from the design anytime.
+          <p className="text-xs text-zinc-500 mt-0.5 leading-relaxed">
+            All tickets, comments, categories, and user accounts are stored in your Neon PostgreSQL database. You can restore the original mock dataset anytime.
           </p>
         </div>
 
         <div className="pt-2">
           <button
             type="button"
-            onClick={() => {
-              if (confirm('Reset tickets back to default 20 tickets from the design?')) {
-                resetToDefaults();
-                alert('Tickets reset successfully to initial dataset.');
+            onClick={async () => {
+              if (confirm('Restore PostgreSQL database with default 20 tickets, categories, and accounts (all passwords = 123456)?')) {
+                try {
+                  const res = await fetch('/api/seed', { method: 'POST' });
+                  if (res.ok) {
+                    alert('PostgreSQL Database restored and seeded successfully!');
+                    window.location.reload();
+                  } else {
+                    alert('Failed to restore database seed data.');
+                  }
+                } catch (e) {
+                  alert('Network error while resetting database.');
+                }
               }
             }}
-            className="flex items-center gap-2 px-4 py-2.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 text-xs font-semibold rounded-xl transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 bg-amber-400 hover:bg-amber-500 text-zinc-950 text-xs font-semibold rounded-xl shadow-xs transition-transform active:scale-95 cursor-pointer"
           >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>Reset Demo Data to Initial 20 Tickets</span>
+            <RefreshCw className="w-4 h-4 stroke-[2.5]" />
+            <span>Restore PostgreSQL Seed Data</span>
           </button>
         </div>
       </div>

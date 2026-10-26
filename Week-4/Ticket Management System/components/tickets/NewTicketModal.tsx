@@ -1,19 +1,25 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Plus, AlertCircle } from 'lucide-react';
 import { useTickets } from '@/lib/ticket-context';
 import { TicketCategory, TicketChannel, TicketPriority, TicketStatus, TicketHealth } from '@/types/ticket';
 import { TEAM_MEMBERS } from '@/lib/mock-data';
 
 export function NewTicketModal() {
-  const { isNewTicketModalOpen, setIsNewTicketModalOpen, addTicket } = useTickets();
+  const {
+    isNewTicketModalOpen,
+    setIsNewTicketModalOpen,
+    addTicket,
+    initialModalStatus,
+    categories,
+  } = useTickets();
 
   const [subject, setSubject] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<TicketStatus | 'escalated'>('open');
   const [priority, setPriority] = useState<TicketPriority>('high');
-  const [category, setCategory] = useState<TicketCategory>('technical');
+  const [category, setCategory] = useState<string>('technical');
   const [channel, setChannel] = useState<TicketChannel>('email');
   const [health, setHealth] = useState<TicketHealth>('on_track');
   const [customerName, setCustomerName] = useState('');
@@ -25,6 +31,16 @@ export function NewTicketModal() {
   );
   const [isEscalated, setIsEscalated] = useState(false);
   const [error, setError] = useState('');
+
+  // Whenever modal opens or initialModalStatus changes, preselect the clicked column status!
+  useEffect(() => {
+    if (isNewTicketModalOpen) {
+      setStatus(initialModalStatus || 'open');
+      if (initialModalStatus === 'open') {
+        setIsEscalated(false);
+      }
+    }
+  }, [isNewTicketModalOpen, initialModalStatus]);
 
   if (!isNewTicketModalOpen) return null;
 
@@ -163,15 +179,14 @@ export function NewTicketModal() {
               </label>
               <select
                 value={category}
-                onChange={(e) => setCategory(e.target.value as TicketCategory)}
+                onChange={(e) => setCategory(e.target.value)}
                 className="w-full text-xs py-2 px-2.5 bg-white dark:bg-[#181D2A] border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-800 dark:text-zinc-200 focus:outline-hidden capitalize"
               >
-                <option value="technical">Technical Issue</option>
-                <option value="billing">Billing</option>
-                <option value="account">Account & Login</option>
-                <option value="subscription">Subscription</option>
-                <option value="access">Access</option>
-                <option value="other">Other</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
               </select>
             </div>
 

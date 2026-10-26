@@ -30,7 +30,7 @@ export default function NewTicketPage() {
   const [tagsInput, setTagsInput] = useState('Enterprise, Onboarding');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!subject.trim()) {
       setError('Please provide a subject title for the ticket');
@@ -43,7 +43,7 @@ export default function NewTicketPage() {
 
     const shouldEscalate = isEscalated || status === 'escalated';
 
-    const created = addTicket({
+    const created = await addTicket({
       subject: subject.trim(),
       description: description.trim() || 'No additional details provided.',
       status: status === 'escalated' ? 'open' : status,

@@ -17,6 +17,7 @@ import { useTickets } from '@/lib/ticket-context';
 import { TicketStatus, TicketPriority, TicketCategory } from '@/types/ticket';
 import { DESIGN_TOKENS, CATEGORY_LABELS } from '@/lib/design-system';
 import { TEAM_MEMBERS } from '@/lib/mock-data';
+import { ConfirmModal } from '@/components/ui/CustomModal';
 
 export function TicketModal() {
   const {
@@ -26,16 +27,18 @@ export function TicketModal() {
     updateTicket,
     addComment,
     deleteTicket,
+    currentUser,
   } = useTickets();
 
   const [newCommentText, setNewCommentText] = useState('');
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   if (!selectedTicket) return null;
 
   const handlePostComment = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCommentText.trim()) return;
-    addComment(selectedTicket.id, newCommentText.trim(), false);
+    addComment(selectedTicket.id, newCommentText.trim());
     setNewCommentText('');
   };
 
@@ -79,17 +82,15 @@ export function TicketModal() {
             >
               <ExternalLink className="w-4 h-4" />
             </Link>
-            <button
-              onClick={() => {
-                if (confirm('Are you sure you want to delete this ticket?')) {
-                  deleteTicket(selectedTicket.id);
-                }
-              }}
-              className="p-1.5 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg transition-colors"
-              title="Delete Ticket"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
+            {currentUser?.role !== 'customer' && (
+              <button
+                onClick={() => setIsDeleteModalOpen(true)}
+                className="p-1.5 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg transition-colors cursor-pointer"
+                title="Delete Ticket"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            )}
             <button
               onClick={() => setSelectedTicket(null)}
               className="p-1.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
@@ -119,6 +120,7 @@ export function TicketModal() {
                 Status
               </label>
               <select
+                disabled={currentUser?.role === 'customer'}
                 value={selectedTicket.isEscalated ? 'escalated' : selectedTicket.status}
                 onChange={(e) => {
                   const val = e.target.value;
@@ -128,7 +130,7 @@ export function TicketModal() {
                     updateTicket(selectedTicket.id, { status: val as TicketStatus, isEscalated: false });
                   }
                 }}
-                className="w-full text-xs font-medium py-1.5 px-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-800 dark:text-zinc-200 focus:outline-hidden"
+                className="w-full text-xs font-medium py-1.5 px-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-800 dark:text-zinc-200 focus:outline-hidden disabled:opacity-75 disabled:cursor-not-allowed"
               >
                 <option value="open">Open</option>
                 <option value="pending">Pending</option>
@@ -281,6 +283,22 @@ export function TicketModal() {
           </button>
         </form>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        title="Delete Support Ticket"
+        message={`Are you sure you want to permanently delete ticket ${selectedTicket.id}? This action cannot be undone.`}
+        confirmText="Delete Ticket"
+        cancelText="Cancel"
+        isDestructive={true}
+        onConfirm={async () => {
+          setIsDeleteModalOpen(false);
+          await deleteTicket(selectedTicket.id);
+          setSelectedTicket(null);
+        }}
+        onCancel={() => setIsDeleteModalOpen(false)}
+      />
     </div>
   );
 }
