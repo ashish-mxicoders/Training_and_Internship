@@ -13,16 +13,20 @@ declare global {
   var __dbPool: Pool | undefined;
 }
 
-// Connection string from environment variable (.env)
-const connectionString =
-  process.env.DATABASE_URL ||
-  'postgresql://neondb_owner:npg_zOpgH5WMEyT4@ep-old-cake-b4f4asqj-pooler.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require';
+// Connection string strictly loaded from environment variable (.env)
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  console.warn(
+    '⚠️ [DATABASE] DATABASE_URL is not set in environment variables. Please check your .env file.'
+  );
+}
 
 // Create or reuse existing pool
 export const pool: Pool =
   global.__dbPool ||
   new Pool({
-    connectionString,
+    connectionString: connectionString || '',
     ssl: {
       rejectUnauthorized: false, // Required for Neon PostgreSQL SSL connection
     },

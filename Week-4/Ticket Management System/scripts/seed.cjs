@@ -3,12 +3,38 @@
 // Run directly using: node scripts/seed.cjs
 // =====================================================================
 
+const fs = require('fs');
+const path = require('path');
 const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
 
-const connectionString =
-  process.env.DATABASE_URL ||
-  'postgresql://neondb_owner:npg_zOpgH5WMEyT4@ep-old-cake-b4f4asqj-pooler.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require';
+// Automatically read and load environment variables from .env file
+if (!process.env.DATABASE_URL) {
+  const envPath = path.resolve(__dirname, '../.env');
+  if (fs.existsSync(envPath)) {
+    const envContent = fs.readFileSync(envPath, 'utf8');
+    for (const line of envContent.split(/\r?\n/)) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const eqIdx = trimmed.indexOf('=');
+      if (eqIdx !== -1) {
+        const key = trimmed.slice(0, eqIdx).trim();
+        const val = trimmed.slice(eqIdx + 1).trim();
+        if (!process.env[key]) {
+          process.env[key] = val;
+        }
+      }
+    }
+  }
+}
+
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  console.error('❌ [SEED ERROR] DATABASE_URL is not defined in your environment or .env file.');
+  console.error('Please configure DATABASE_URL in .env before running this script.');
+  process.exit(1);
+}
 
 const pool = new Pool({
   connectionString,
@@ -16,7 +42,7 @@ const pool = new Pool({
 });
 
 async function runSeed() {
-  console.log('Connecting to Neon PostgreSQL at:', connectionString.split('@')[1]);
+  console.log('Connecting to PostgreSQL database via DATABASE_URL (.env)...');
 
   console.log('1. Dropping old tables...');
   await pool.query('DROP TABLE IF EXISTS comments CASCADE;');

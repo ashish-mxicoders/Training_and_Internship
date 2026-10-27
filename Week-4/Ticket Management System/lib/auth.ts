@@ -10,9 +10,14 @@ import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
-// Secret key for signing JWT tokens
-const JWT_SECRET =
-  process.env.JWT_SECRET || 'super_secret_jwt_key_ticket_management_system_2026';
+// Secret key for signing JWT tokens strictly loaded from environment
+const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_fallback_secret_only';
+
+if (!process.env.JWT_SECRET) {
+  console.warn(
+    '⚠️ [AUTH WARNING] JWT_SECRET is not configured in .env. Please define JWT_SECRET in your .env file.'
+  );
+}
 
 export interface AuthUserPayload {
   userId: string;
