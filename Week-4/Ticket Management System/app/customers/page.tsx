@@ -80,14 +80,8 @@ export default function CustomersPage() {
                   <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-bold flex items-center justify-center text-sm">
                     {company.name.slice(0, 2).toUpperCase()}
                   </div>
-                  <span
-                    className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
-                      company.tier === 'Enterprise'
-                        ? 'bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800'
-                        : 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800'
-                    }`}
-                  >
-                    {company.tier} Tier
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">
+                    {company.tickets.length} tickets
                   </span>
                 </div>
 

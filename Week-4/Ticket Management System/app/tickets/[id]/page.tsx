@@ -361,7 +361,7 @@ export default function TicketDetailPage() {
                   {ticket.customer.company}
                 </h4>
                 <p className="text-xs text-zinc-400">
-                  {ticket.customer.tier} Tier Contract
+                  {ticket.customer.name}
                 </p>
               </div>
             </div>

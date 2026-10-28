@@ -68,7 +68,7 @@ export function NewTicketModal() {
       assignee: assignedMember,
       isEscalated: shouldEscalate,
       customer: {
-        name: customerName.trim() || 'Enterprise User',
+        name: customerName.trim() || 'Client User',
         company: companyName.trim() || 'Acme Partner',
         email: customerEmail.trim() || 'contact@client.com',
         tier: 'Enterprise',

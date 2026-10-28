@@ -76,7 +76,7 @@ export const INITIAL_TICKETS: Ticket[] = [
     dueDate: '2026-10-16',
     createdAt: '2026-10-10',
     updatedAt: '2026-10-13',
-    tags: ['Onboarding', 'Enterprise', 'IdP'],
+    tags: ['Onboarding', 'IdP'],
     comments: [
       {
         id: 'c-1',
@@ -150,7 +150,7 @@ export const INITIAL_TICKETS: Ticket[] = [
     updatedAt: '2026-10-12',
     isEscalated: true,
     isPastDue: true,
-    tags: ['Security', 'RBAC', 'Enterprise'],
+    tags: ['Security', 'RBAC'],
     comments: [],
   },
   {

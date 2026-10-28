@@ -27,7 +27,7 @@ export default function NewTicketPage() {
     new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
   );
   const [isEscalated, setIsEscalated] = useState(false);
-  const [tagsInput, setTagsInput] = useState('Enterprise, Onboarding');
+  const [tagsInput, setTagsInput] = useState('Onboarding, Priority');
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -331,7 +331,7 @@ export default function NewTicketPage() {
             type="text"
             value={tagsInput}
             onChange={(e) => setTagsInput(e.target.value)}
-            placeholder="e.g. Enterprise, Onboarding, IdP"
+            placeholder="e.g. Onboarding, IdP, Billing"
             className="w-full px-3.5 py-2 text-xs bg-zinc-50 dark:bg-[#181D2A] border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-zinc-100"
           />
         </div>

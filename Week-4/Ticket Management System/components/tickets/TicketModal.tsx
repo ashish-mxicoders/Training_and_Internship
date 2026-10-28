@@ -226,9 +226,6 @@ export function TicketModal() {
                 </p>
               </div>
             </div>
-            <span className="px-2.5 py-1 rounded-md text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300">
-              {selectedTicket.customer.tier} Plan
-            </span>
           </div>
 
           {/* Activity Timeline / Discussion */}
