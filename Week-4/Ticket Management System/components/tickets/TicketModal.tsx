@@ -12,6 +12,7 @@ import {
   User,
   Clock,
   CheckCircle,
+  ChevronDown,
 } from 'lucide-react';
 import { useTickets } from '@/lib/ticket-context';
 import { TicketStatus, TicketPriority, TicketCategory } from '@/types/ticket';
@@ -119,25 +120,28 @@ export function TicketModal() {
               <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 block mb-1">
                 Status
               </label>
-              <select
-                disabled={currentUser?.role === 'customer'}
-                value={selectedTicket.isEscalated ? 'escalated' : selectedTicket.status}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (val === 'escalated') {
-                    updateTicket(selectedTicket.id, { isEscalated: true });
-                  } else {
-                    updateTicket(selectedTicket.id, { status: val as TicketStatus, isEscalated: false });
-                  }
-                }}
-                className="w-full text-xs font-medium py-1.5 px-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-800 dark:text-zinc-200 focus:outline-hidden disabled:opacity-75 disabled:cursor-not-allowed"
-              >
-                <option value="open">Open</option>
-                <option value="pending">Pending</option>
-                <option value="resolved">Resolved</option>
-                <option value="closed">Closed</option>
-                <option value="escalated">⚠️ Escalated</option>
-              </select>
+              <div className="relative">
+                <select
+                  disabled={currentUser?.role === 'customer'}
+                  value={selectedTicket.isEscalated ? 'escalated' : selectedTicket.status}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === 'escalated') {
+                      updateTicket(selectedTicket.id, { isEscalated: true });
+                    } else {
+                      updateTicket(selectedTicket.id, { status: val as TicketStatus, isEscalated: false });
+                    }
+                  }}
+                  className="w-full appearance-none text-xs font-medium py-1.5 pl-2.5 pr-7 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-800 dark:text-zinc-200 focus:outline-hidden disabled:opacity-75 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <option value="open">Open</option>
+                  <option value="pending">Pending</option>
+                  <option value="resolved">Resolved</option>
+                  <option value="closed">Closed</option>
+                  <option value="escalated">⚠️ Escalated</option>
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
             </div>
 
             {/* Priority Selector */}
@@ -145,17 +149,20 @@ export function TicketModal() {
               <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 block mb-1">
                 Priority
               </label>
-              <select
-                value={selectedTicket.priority}
-                onChange={(e) => updateTicket(selectedTicket.id, { priority: e.target.value as TicketPriority })}
-                className="w-full text-xs font-medium py-1.5 px-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-800 dark:text-zinc-200 focus:outline-hidden capitalize"
-              >
-                <option value="urgent">Urgent</option>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
-                <option value="todo">Todo</option>
-              </select>
+              <div className="relative">
+                <select
+                  value={selectedTicket.priority}
+                  onChange={(e) => updateTicket(selectedTicket.id, { priority: e.target.value as TicketPriority })}
+                  className="w-full appearance-none text-xs font-medium py-1.5 pl-2.5 pr-7 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-800 dark:text-zinc-200 focus:outline-hidden capitalize cursor-pointer"
+                >
+                  <option value="urgent">Urgent</option>
+                  <option value="high">High</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low</option>
+                  <option value="todo">Todo</option>
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
             </div>
 
             {/* Assignee Selector */}
@@ -163,22 +170,25 @@ export function TicketModal() {
               <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 block mb-1">
                 Assignee
               </label>
-              <select
-                value={selectedTicket.assignee?.id || 'unassigned'}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  const member = Object.values(TEAM_MEMBERS).find((m) => m.id === val);
-                  updateTicket(selectedTicket.id, { assignee: member || undefined });
-                }}
-                className="w-full text-xs font-medium py-1.5 px-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-800 dark:text-zinc-200 focus:outline-hidden"
-              >
-                <option value="unassigned">Unassigned</option>
-                {Object.values(TEAM_MEMBERS).map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={selectedTicket.assignee?.id || 'unassigned'}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    const member = Object.values(TEAM_MEMBERS).find((m) => m.id === val);
+                    updateTicket(selectedTicket.id, { assignee: member || undefined });
+                  }}
+                  className="w-full appearance-none text-xs font-medium py-1.5 pl-2.5 pr-7 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-800 dark:text-zinc-200 focus:outline-hidden cursor-pointer"
+                >
+                  <option value="unassigned">Unassigned</option>
+                  {Object.values(TEAM_MEMBERS).map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
             </div>
 
             {/* Health Selector */}
@@ -186,15 +196,18 @@ export function TicketModal() {
               <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 block mb-1">
                 Health SLA
               </label>
-              <select
-                value={selectedTicket.health}
-                onChange={(e) => updateTicket(selectedTicket.id, { health: e.target.value as any })}
-                className="w-full text-xs font-medium py-1.5 px-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-800 dark:text-zinc-200 focus:outline-hidden"
-              >
-                <option value="on_track">On Track</option>
-                <option value="warning">Warning</option>
-                <option value="breached">Breached</option>
-              </select>
+              <div className="relative">
+                <select
+                  value={selectedTicket.health}
+                  onChange={(e) => updateTicket(selectedTicket.id, { health: e.target.value as any })}
+                  className="w-full appearance-none text-xs font-medium py-1.5 pl-2.5 pr-7 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-800 dark:text-zinc-200 focus:outline-hidden cursor-pointer"
+                >
+                  <option value="on_track">On Track</option>
+                  <option value="warning">Warning</option>
+                  <option value="breached">Breached</option>
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
             </div>
           </div>
 

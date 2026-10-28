@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Plus, AlertCircle } from 'lucide-react';
+import { X, Plus, AlertCircle, ChevronDown } from 'lucide-react';
 import { useTickets } from '@/lib/ticket-context';
 import { TicketCategory, TicketChannel, TicketPriority, TicketStatus, TicketHealth } from '@/types/ticket';
 import { TEAM_MEMBERS } from '@/lib/mock-data';
@@ -160,106 +160,124 @@ export function NewTicketModal() {
               <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 block mb-1">
                 Priority
               </label>
-              <select
-                value={priority}
-                onChange={(e) => setPriority(e.target.value as TicketPriority)}
-                className="w-full text-xs py-2 px-2.5 bg-white dark:bg-[#181D2A] border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-800 dark:text-zinc-200 focus:outline-hidden capitalize"
-              >
-                <option value="urgent">Urgent</option>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
-                <option value="todo">Todo</option>
-              </select>
+              <div className="relative">
+                <select
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value as TicketPriority)}
+                  className="w-full appearance-none text-xs py-2 pl-3 pr-8 bg-white dark:bg-[#181D2A] border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-800 dark:text-zinc-200 focus:outline-hidden capitalize cursor-pointer"
+                >
+                  <option value="urgent">Urgent</option>
+                  <option value="high">High</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low</option>
+                  <option value="todo">Todo</option>
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
             </div>
 
             <div>
               <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 block mb-1">
                 Category
               </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full text-xs py-2 px-2.5 bg-white dark:bg-[#181D2A] border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-800 dark:text-zinc-200 focus:outline-hidden capitalize"
-              >
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full appearance-none text-xs py-2 pl-3 pr-8 bg-white dark:bg-[#181D2A] border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-800 dark:text-zinc-200 focus:outline-hidden capitalize cursor-pointer"
+                >
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
             </div>
 
             <div>
               <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 block mb-1">
                 Channel
               </label>
-              <select
-                value={channel}
-                onChange={(e) => setChannel(e.target.value as TicketChannel)}
-                className="w-full text-xs py-2 px-2.5 bg-white dark:bg-[#181D2A] border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-800 dark:text-zinc-200 focus:outline-hidden capitalize"
-              >
-                <option value="email">Email</option>
-                <option value="chat">Chat</option>
-                <option value="slack">Slack</option>
-                <option value="web">Web</option>
-              </select>
+              <div className="relative">
+                <select
+                  value={channel}
+                  onChange={(e) => setChannel(e.target.value as TicketChannel)}
+                  className="w-full appearance-none text-xs py-2 pl-3 pr-8 bg-white dark:bg-[#181D2A] border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-800 dark:text-zinc-200 focus:outline-hidden capitalize cursor-pointer"
+                >
+                  <option value="email">Email</option>
+                  <option value="chat">Chat</option>
+                  <option value="slack">Slack</option>
+                  <option value="web">Web</option>
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
             </div>
 
             <div>
               <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 block mb-1">
                 Initial Status
               </label>
-              <select
-                value={status}
-                onChange={(e) => {
-                  const val = e.target.value as TicketStatus | 'escalated';
-                  setStatus(val);
-                  if (val === 'escalated') {
-                    setIsEscalated(true);
-                  }
-                }}
-                className="w-full text-xs py-2 px-2.5 bg-white dark:bg-[#181D2A] border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-800 dark:text-zinc-200 focus:outline-hidden capitalize"
-              >
-                <option value="open">Open</option>
-                <option value="pending">Pending</option>
-                <option value="escalated">⚠️ Escalated</option>
-                <option value="resolved">Resolved</option>
-                <option value="closed">Closed</option>
-              </select>
+              <div className="relative">
+                <select
+                  value={status}
+                  onChange={(e) => {
+                    const val = e.target.value as TicketStatus | 'escalated';
+                    setStatus(val);
+                    if (val === 'escalated') {
+                      setIsEscalated(true);
+                    }
+                  }}
+                  className="w-full appearance-none text-xs py-2 pl-3 pr-8 bg-white dark:bg-[#181D2A] border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-800 dark:text-zinc-200 focus:outline-hidden capitalize cursor-pointer"
+                >
+                  <option value="open">Open</option>
+                  <option value="pending">Pending</option>
+                  <option value="escalated">⚠️ Escalated</option>
+                  <option value="resolved">Resolved</option>
+                  <option value="closed">Closed</option>
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
             </div>
 
             <div>
               <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 block mb-1">
                 Health SLA
               </label>
-              <select
-                value={health}
-                onChange={(e) => setHealth(e.target.value as TicketHealth)}
-                className="w-full text-xs py-2 px-2.5 bg-white dark:bg-[#181D2A] border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-800 dark:text-zinc-200 focus:outline-hidden"
-              >
-                <option value="on_track">On Track</option>
-                <option value="warning">Warning</option>
-                <option value="breached">Breached</option>
-              </select>
+              <div className="relative">
+                <select
+                  value={health}
+                  onChange={(e) => setHealth(e.target.value as TicketHealth)}
+                  className="w-full appearance-none text-xs py-2 pl-3 pr-8 bg-white dark:bg-[#181D2A] border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-800 dark:text-zinc-200 focus:outline-hidden cursor-pointer"
+                >
+                  <option value="on_track">On Track</option>
+                  <option value="warning">Warning</option>
+                  <option value="breached">Breached</option>
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
             </div>
 
             <div>
               <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 block mb-1">
                 Assignee (Optional)
               </label>
-              <select
-                value={assigneeId}
-                onChange={(e) => setAssigneeId(e.target.value)}
-                className="w-full text-xs py-2 px-2.5 bg-white dark:bg-[#181D2A] border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-800 dark:text-zinc-200 focus:outline-hidden"
-              >
-                <option value="">Unassigned (None)</option>
-                {Object.values(TEAM_MEMBERS).map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={assigneeId}
+                  onChange={(e) => setAssigneeId(e.target.value)}
+                  className="w-full appearance-none text-xs py-2 pl-3 pr-8 bg-white dark:bg-[#181D2A] border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-800 dark:text-zinc-200 focus:outline-hidden cursor-pointer"
+                >
+                  <option value="">Unassigned (None)</option>
+                  {Object.values(TEAM_MEMBERS).map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
             </div>
 
             <div>

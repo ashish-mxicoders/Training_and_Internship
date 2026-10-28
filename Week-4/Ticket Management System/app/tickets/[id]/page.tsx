@@ -15,6 +15,7 @@ import {
   CheckCircle2,
   Trash2,
   Share2,
+  ChevronDown,
 } from 'lucide-react';
 import { useTickets } from '@/lib/ticket-context';
 import { TicketStatus, TicketPriority } from '@/types/ticket';
@@ -252,58 +253,67 @@ export default function TicketDetailPage() {
             <div className="space-y-3 text-xs">
               <div>
                 <label className="text-zinc-400 block mb-1">Status</label>
-                <select
-                  value={ticket.isEscalated ? 'escalated' : ticket.status}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === 'escalated') {
-                      updateTicket(ticket.id, { isEscalated: true });
-                    } else {
-                      updateTicket(ticket.id, { status: val as TicketStatus, isEscalated: false });
-                    }
-                  }}
-                  className="w-full py-2 px-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl font-medium text-zinc-800 dark:text-zinc-200"
-                >
-                  <option value="open">Open</option>
-                  <option value="pending">Pending</option>
-                  <option value="resolved">Resolved</option>
-                  <option value="closed">Closed</option>
-                  <option value="escalated">⚠️ Escalated</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={ticket.isEscalated ? 'escalated' : ticket.status}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === 'escalated') {
+                        updateTicket(ticket.id, { isEscalated: true });
+                      } else {
+                        updateTicket(ticket.id, { status: val as TicketStatus, isEscalated: false });
+                      }
+                    }}
+                    className="w-full appearance-none py-2 pl-3 pr-8 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl font-medium text-zinc-800 dark:text-zinc-200 cursor-pointer focus:outline-hidden"
+                  >
+                    <option value="open">Open</option>
+                    <option value="pending">Pending</option>
+                    <option value="resolved">Resolved</option>
+                    <option value="closed">Closed</option>
+                    <option value="escalated">⚠️ Escalated</option>
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
               </div>
 
               <div>
                 <label className="text-zinc-400 block mb-1">Priority</label>
-                <select
-                  value={ticket.priority}
-                  onChange={(e) => updateTicket(ticket.id, { priority: e.target.value as TicketPriority })}
-                  className="w-full py-2 px-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl font-medium text-zinc-800 dark:text-zinc-200 capitalize"
-                >
-                  <option value="urgent">Urgent</option>
-                  <option value="high">High</option>
-                  <option value="medium">Medium</option>
-                  <option value="low">Low</option>
-                  <option value="todo">Todo</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={ticket.priority}
+                    onChange={(e) => updateTicket(ticket.id, { priority: e.target.value as TicketPriority })}
+                    className="w-full appearance-none py-2 pl-3 pr-8 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl font-medium text-zinc-800 dark:text-zinc-200 capitalize cursor-pointer focus:outline-hidden"
+                  >
+                    <option value="urgent">Urgent</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                    <option value="todo">Todo</option>
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
               </div>
 
               <div>
                 <label className="text-zinc-400 block mb-1">Assignee</label>
-                <select
-                  value={ticket.assignee?.id || 'unassigned'}
-                  onChange={(e) => {
-                    const member = Object.values(TEAM_MEMBERS).find((m) => m.id === e.target.value);
-                    updateTicket(ticket.id, { assignee: member || undefined });
-                  }}
-                  className="w-full py-2 px-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl font-medium text-zinc-800 dark:text-zinc-200"
-                >
-                  <option value="unassigned">Unassigned</option>
-                  {Object.values(TEAM_MEMBERS).map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.name} ({m.role})
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={ticket.assignee?.id || 'unassigned'}
+                    onChange={(e) => {
+                      const member = Object.values(TEAM_MEMBERS).find((m) => m.id === e.target.value);
+                      updateTicket(ticket.id, { assignee: member || undefined });
+                    }}
+                    className="w-full appearance-none py-2 pl-3 pr-8 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl font-medium text-zinc-800 dark:text-zinc-200 cursor-pointer focus:outline-hidden"
+                  >
+                    <option value="unassigned">Unassigned</option>
+                    {Object.values(TEAM_MEMBERS).map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.name} ({m.role})
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
               </div>
 
               <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800 flex justify-between py-1">

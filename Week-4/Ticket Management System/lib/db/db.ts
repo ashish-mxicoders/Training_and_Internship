@@ -47,12 +47,5 @@ if (process.env.NODE_ENV !== 'production') {
  * console.log(result.rows);
  */
 export async function query(text: string, params?: any[]) {
-  const start = Date.now();
-  const res = await pool.query(text, params);
-  const duration = Date.now() - start;
-  // Log query in development for easy debugging
-  if (process.env.NODE_ENV !== 'production') {
-    console.log('[Database Query]', { text, duration: `${duration}ms`, rowsCount: res.rowCount });
-  }
-  return res;
+  return await pool.query(text, params);
 }
