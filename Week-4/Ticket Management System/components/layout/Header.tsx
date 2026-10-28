@@ -15,6 +15,7 @@ import {
   Settings,
   LogOut,
   User,
+  LogIn,
 } from 'lucide-react';
 import { useTickets } from '@/lib/ticket-context';
 
@@ -149,110 +150,122 @@ export function Header() {
         </button>
 
         {/* Read-Only Role Indicator (Dashboard automatically adapts to DB/Login role) */}
-        <div
-          className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-100 dark:bg-zinc-800/80 text-zinc-700 dark:text-zinc-200 border border-zinc-200/60 dark:border-zinc-700/60 select-none shadow-2xs"
-          title={`Active Session Role: ${currentUser?.role === 'admin' ? 'Administrator' : 'Customer'}`}
-        >
-          <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold">Role:</span>
-          <span
-            className={`px-2 py-0.5 rounded-md text-[10px] uppercase font-bold tracking-wide ${
-              currentUser?.role === 'admin'
-                ? 'bg-amber-400 text-zinc-950 shadow-2xs'
-                : 'bg-sky-500 text-white shadow-2xs'
-            }`}
+        {currentUser && (
+          <div
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-100 dark:bg-zinc-800/80 text-zinc-700 dark:text-zinc-200 border border-zinc-200/60 dark:border-zinc-700/60 select-none shadow-2xs"
+            title={`Active Session Role: ${currentUser.role === 'admin' ? 'Administrator' : 'Customer'}`}
           >
-            {currentUser?.role === 'admin' ? 'Admin' : 'Customer'}
-          </span>
-        </div>
+            <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold">Role:</span>
+            <span
+              className={`px-2 py-0.5 rounded-md text-[10px] uppercase font-bold tracking-wide ${
+                currentUser.role === 'admin'
+                  ? 'bg-amber-400 text-zinc-950 shadow-2xs'
+                  : 'bg-sky-500 text-white shadow-2xs'
+              }`}
+            >
+              {currentUser.role === 'admin' ? 'Admin' : 'Customer'}
+            </span>
+          </div>
+        )}
 
-        {/* User Profile Avatar with Dropdown (Settings or Logout) */}
-        <div className="relative pl-1 sm:pl-2" ref={profileMenuRef}>
-          <button
-            type="button"
-            onClick={() => setIsProfileMenuOpen((prev) => !prev)}
-            className="flex items-center gap-2 p-0.5 rounded-full hover:ring-2 hover:ring-amber-400 transition-all cursor-pointer"
-            title={`${currentUser?.name || 'User'} (${currentUser?.role || 'Admin'})`}
-            aria-expanded={isProfileMenuOpen}
-          >
-            <div className="relative w-8 h-8 rounded-full overflow-hidden bg-zinc-200 ring-1 ring-zinc-300 dark:ring-zinc-700 flex items-center justify-center font-bold text-xs text-zinc-700">
-              {currentUser?.avatar ? (
-                <img
-                  src={currentUser.avatar}
-                  alt={currentUser.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span>{currentUser?.initials || 'US'}</span>
-              )}
-            </div>
-          </button>
+        {/* User Profile Avatar with Dropdown (or Sign In button if logged out) */}
+        {currentUser ? (
+          <div className="relative pl-1 sm:pl-2" ref={profileMenuRef}>
+            <button
+              type="button"
+              onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+              className="flex items-center gap-2 p-0.5 rounded-full hover:ring-2 hover:ring-amber-400 transition-all cursor-pointer"
+              title={`${currentUser.name} (${currentUser.role})`}
+              aria-expanded={isProfileMenuOpen}
+            >
+              <div className="relative w-8 h-8 rounded-full overflow-hidden bg-zinc-200 ring-1 ring-zinc-300 dark:ring-zinc-700 flex items-center justify-center font-bold text-xs text-zinc-700">
+                {currentUser.avatar ? (
+                  <img
+                    src={currentUser.avatar}
+                    alt={currentUser.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span>{currentUser.initials || 'US'}</span>
+                )}
+              </div>
+            </button>
 
-          {/* Profile Dropdown Menu */}
-          {isProfileMenuOpen && (
-            <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-white dark:bg-[#151924] border border-zinc-200/80 dark:border-zinc-800 shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-              {/* Header Info */}
-              <div className="px-4 py-3 border-b border-zinc-100 dark:border-zinc-800/80">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full overflow-hidden bg-zinc-200 dark:bg-zinc-700 ring-1 ring-zinc-300 dark:ring-zinc-700 flex items-center justify-center font-bold text-xs text-zinc-700 dark:text-zinc-200 flex-shrink-0">
-                    {currentUser?.avatar ? (
-                      <img
-                        src={currentUser.avatar}
-                        alt={currentUser.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span>{currentUser?.initials || 'US'}</span>
-                    )}
-                  </div>
-                  <div className="overflow-hidden">
-                    <p className="text-xs font-bold text-zinc-900 dark:text-white truncate">
-                      {currentUser?.name || 'User'}
-                    </p>
-                    <p className="text-[11px] text-zinc-400 truncate">
-                      {currentUser?.email || ''}
-                    </p>
-                    <span
-                      className={`inline-block mt-1 px-1.5 py-0.2 rounded text-[9px] uppercase font-bold ${
-                        currentUser?.role === 'admin'
-                          ? 'bg-amber-400 text-zinc-950'
-                          : 'bg-sky-500 text-white'
-                      }`}
-                    >
-                      {currentUser?.role === 'admin' ? 'Admin' : 'Customer'}
-                    </span>
+            {/* Profile Dropdown Menu */}
+            {isProfileMenuOpen && (
+              <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-white dark:bg-[#151924] border border-zinc-200/80 dark:border-zinc-800 shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                {/* Header Info */}
+                <div className="px-4 py-3 border-b border-zinc-100 dark:border-zinc-800/80">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-zinc-200 dark:bg-zinc-700 ring-1 ring-zinc-300 dark:ring-zinc-700 flex items-center justify-center font-bold text-xs text-zinc-700 dark:text-zinc-200 flex-shrink-0">
+                      {currentUser.avatar ? (
+                        <img
+                          src={currentUser.avatar}
+                          alt={currentUser.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span>{currentUser.initials || 'US'}</span>
+                      )}
+                    </div>
+                    <div className="overflow-hidden">
+                      <p className="text-xs font-bold text-zinc-900 dark:text-white truncate">
+                        {currentUser.name}
+                      </p>
+                      <p className="text-[11px] text-zinc-400 truncate">
+                        {currentUser.email}
+                      </p>
+                      <span
+                        className={`inline-block mt-1 px-1.5 py-0.2 rounded text-[9px] uppercase font-bold ${
+                          currentUser.role === 'admin'
+                            ? 'bg-amber-400 text-zinc-950'
+                            : 'bg-sky-500 text-white'
+                        }`}
+                      >
+                        {currentUser.role === 'admin' ? 'Admin' : 'Customer'}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Menu Actions */}
-              <div className="p-1 space-y-0.5">
-                <Link
-                  href="/settings"
-                  onClick={() => setIsProfileMenuOpen(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 rounded-xl transition-colors cursor-pointer"
-                >
-                  <Settings className="w-4 h-4 text-zinc-400" />
-                  <span>Workspace Settings</span>
-                </Link>
+                {/* Menu Actions */}
+                <div className="p-1 space-y-0.5">
+                  <Link
+                    href="/settings"
+                    onClick={() => setIsProfileMenuOpen(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 rounded-xl transition-colors cursor-pointer"
+                  >
+                    <Settings className="w-4 h-4 text-zinc-400" />
+                    <span>Workspace Settings</span>
+                  </Link>
 
-                <button
-                  type="button"
-                  onClick={async () => {
-                    setIsProfileMenuOpen(false);
-                    if (confirm('Are you sure you want to log out?')) {
-                      await logoutUser();
-                      window.location.href = '/login';
-                    }
-                  }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-xl transition-colors cursor-pointer text-left"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>Log Out</span>
-                </button>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setIsProfileMenuOpen(false);
+                      if (confirm('Are you sure you want to log out?')) {
+                        await logoutUser();
+                        window.location.href = '/login';
+                      }
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-xl transition-colors cursor-pointer text-left"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Log Out</span>
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        ) : (
+          <Link
+            href="/login"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-zinc-950 font-semibold text-xs transition-colors shadow-xs ml-1"
+          >
+            <LogIn className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span>Sign In</span>
+          </Link>
+        )}
       </div>
     </header>
   );

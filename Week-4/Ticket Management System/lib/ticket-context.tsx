@@ -137,16 +137,8 @@ const TicketContext = createContext<TicketContextType | undefined>(undefined);
 const THEME_KEY = 'tms_theme_preference';
 
 export function TicketProvider({ children }: { children: React.ReactNode }) {
-  // 1. Current Logged-in User (Defaults to Jason Duong Admin)
-  const [currentUser, setCurrentUser] = useState<AppUser | null>({
-    id: CURRENT_USER.id,
-    name: CURRENT_USER.name,
-    email: CURRENT_USER.email,
-    role: 'admin',
-    avatar: CURRENT_USER.avatar,
-    initials: CURRENT_USER.initials,
-    company: 'Acme Support Desk',
-  });
+  // 1. Current Logged-in User (Defaults to null until authenticated via /api/auth/me)
+  const [currentUser, setCurrentUser] = useState<AppUser | null>(null);
 
   // 2. Tickets & Selected Ticket State
   const [tickets, setTickets] = useState<Ticket[]>(INITIAL_TICKETS);
@@ -272,11 +264,17 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
       .then((data) => {
         if (data.authenticated && data.user) {
           setCurrentUser(data.user);
+          refreshTickets();
+        } else {
+          setCurrentUser(null);
+          setTickets([]);
         }
       })
-      .catch(() => {})
+      .catch(() => {
+        setCurrentUser(null);
+        setTickets([]);
+      })
       .finally(() => {
-        refreshTickets();
         loadCategories();
         setIsLoaded(true);
       });
