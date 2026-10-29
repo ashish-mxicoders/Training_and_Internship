@@ -15,7 +15,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { useTickets } from '@/lib/ticket-context';
-import { TicketStatus, TicketPriority, TicketCategory } from '@/types/ticket';
+import { TicketStatus, TicketPriority, TicketCategory } from '@/types';
 import { DESIGN_TOKENS, CATEGORY_LABELS } from '@/lib/design-system';
 import { TEAM_MEMBERS } from '@/lib/mock-data';
 import { ConfirmModal } from '@/components/ui/CustomModal';

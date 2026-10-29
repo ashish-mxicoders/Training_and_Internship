@@ -9,6 +9,7 @@
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
+import { AuthUserPayload } from '@/types';
 
 // Secret key for signing JWT tokens strictly loaded from environment
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_fallback_secret_only';
@@ -19,15 +20,7 @@ if (!process.env.JWT_SECRET) {
   );
 }
 
-export interface AuthUserPayload {
-  userId: string;
-  name: string;
-  email: string;
-  role: 'admin' | 'customer';
-  company?: string;
-  avatar?: string;
-  initials?: string;
-}
+export type { AuthUserPayload };
 
 /**
  * Creates a signed JWT token valid for 7 days.

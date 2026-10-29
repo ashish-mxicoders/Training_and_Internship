@@ -2,11 +2,12 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 /**
- * Middleware: Route Protection & Authentication Guard
+ * Proxy: Edge Route Protection & Authentication Guard
+ * Modern Next.js proxy convention (migrated from legacy middleware convention)
  * Protects all dashboard routes (/tickets, /analytics, /customers, /settings, /inbox)
  * Redirects unauthenticated users to /login immediately.
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 1. Allow Next.js internals, static files, and public images / screenshots

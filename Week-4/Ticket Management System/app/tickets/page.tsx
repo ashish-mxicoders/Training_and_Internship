@@ -1,16 +1,22 @@
-'use client';
+// =====================================================================
+// Next.js Server Component: /tickets
+// The page shell renders on the server with full metadata.
+// Interactive islands (button, filters, view toggle) are isolated client components.
+// =====================================================================
 
 import React from 'react';
-import { Plus } from 'lucide-react';
-import { useTickets } from '@/lib/ticket-context';
+import { Metadata } from 'next';
 import { KpiCardGrid } from '@/components/tickets/KpiCardGrid';
 import { FilterToolbar } from '@/components/tickets/FilterToolbar';
-import { KanbanBoard } from '@/components/tickets/KanbanBoard';
-import { TableView } from '@/components/tickets/TableView';
+import { NewTicketButton } from '@/components/tickets/NewTicketButton';
+import { TicketsActiveView } from '@/components/tickets/TicketsActiveView';
+
+export const metadata: Metadata = {
+  title: 'Tickets Dashboard | Ticket Management System',
+  description: 'Manage, triage, and track support tickets with SLA deadlines',
+};
 
 export default function TicketsPage() {
-  const { activeViewMode, setIsNewTicketModalOpen } = useTickets();
-
   return (
     <div className="space-y-6">
       {/* Top Page Header */}
@@ -21,28 +27,20 @@ export default function TicketsPage() {
           </h1>
         </div>
 
-        {/* Action Buttons */}
+        {/* Action Button Island */}
         <div className="flex items-center gap-2.5">
-          {/* New Ticket Primary Button */}
-          <button
-            type="button"
-            onClick={() => setIsNewTicketModalOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-amber-400 hover:bg-amber-500 text-zinc-950 rounded-xl transition-all shadow-xs cursor-pointer active:scale-95"
-          >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>New Ticket</span>
-          </button>
+          <NewTicketButton />
         </div>
       </div>
 
       {/* KPI Cards Row */}
       <KpiCardGrid />
 
-      {/* Filter and Search Bar */}
+      {/* Filter and Search Bar Island */}
       <FilterToolbar />
 
-      {/* Active View (Kanban Board vs Table View) */}
-      {activeViewMode === 'kanban' ? <KanbanBoard /> : <TableView />}
+      {/* Dynamic View Island (Kanban Board vs Table View) */}
+      <TicketsActiveView />
     </div>
   );
 }

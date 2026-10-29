@@ -3,7 +3,7 @@
 import React from 'react';
 import { Ticket as TicketIcon, Clock, Check, TrendingUp, TrendingDown } from 'lucide-react';
 import { useTickets } from '@/lib/ticket-context';
-import { TicketStatus } from '@/types/ticket';
+import { TicketStatus } from '@/types';
 
 export function KpiCardGrid() {
   const { stats, statusFilter, setStatusFilter } = useTickets();

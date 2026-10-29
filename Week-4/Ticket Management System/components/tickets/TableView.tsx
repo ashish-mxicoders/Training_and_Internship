@@ -1,23 +1,15 @@
 'use client';
 
+// =====================================================================
+// Component: Table View
+// Tabular view of tickets with sorting, bulk selection, and actions.
+// =====================================================================
+
 import React, { useState } from 'react';
-import {
-  ArrowUp,
-  ArrowDown,
-  Minus,
-  CircleDashed,
-  Mail,
-  MessageSquare,
-  Globe,
-  Hash,
-  Check,
-  Trash2,
-  CheckCircle2,
-  ArrowUpDown,
-} from 'lucide-react';
+import { Trash2, CheckCircle2, ArrowUpDown } from 'lucide-react';
 import { useTickets } from '@/lib/ticket-context';
-import { Ticket, TicketStatus, TicketPriority, TicketChannel } from '@/types/ticket';
-import { DESIGN_TOKENS, CATEGORY_LABELS } from '@/lib/design-system';
+import { Ticket } from '@/types';
+import { TicketTableRow } from './table/TicketTableRow';
 
 export function TableView() {
   const { filteredTickets, setSelectedTicket, updateTicketStatus, deleteTicket } = useTickets();
@@ -25,7 +17,6 @@ export function TableView() {
   const [sortField, setSortField] = useState<keyof Ticket>('id');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
-  // Handle select all
   const handleSelectAll = () => {
     if (selectedIds.length === filteredTickets.length) {
       setSelectedIds([]);
@@ -34,7 +25,6 @@ export function TableView() {
     }
   };
 
-  // Toggle single row selection
   const toggleSelectRow = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     setSelectedIds((prev) =>
@@ -42,7 +32,6 @@ export function TableView() {
     );
   };
 
-  // Bulk actions
   const handleBulkResolve = () => {
     selectedIds.forEach((id) => updateTicketStatus(id, 'resolved'));
     setSelectedIds([]);
@@ -53,10 +42,9 @@ export function TableView() {
     setSelectedIds([]);
   };
 
-  // Sorting
   const sortedTickets = [...filteredTickets].sort((a, b) => {
-    let aVal = a[sortField];
-    let bVal = b[sortField];
+    const aVal = a[sortField];
+    const bVal = b[sortField];
 
     if (aVal === undefined) return 1;
     if (bVal === undefined) return -1;
@@ -76,80 +64,6 @@ export function TableView() {
     }
   };
 
-  // Render helpers
-  const renderPriority = (priority: TicketPriority) => {
-    switch (priority) {
-      case 'urgent':
-        return (
-          <div className="flex items-center gap-1.5 text-xs text-rose-600 dark:text-rose-400 font-medium">
-            <ArrowUp className="w-3.5 h-3.5 stroke-[2.5]" />
-            <span>Urgent</span>
-          </div>
-        );
-      case 'high':
-        return (
-          <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 font-medium">
-            <ArrowUp className="w-3.5 h-3.5 stroke-[2.5]" />
-            <span>High</span>
-          </div>
-        );
-      case 'medium':
-        return (
-          <div className="flex items-center gap-1.5 text-xs text-sky-600 dark:text-sky-400 font-medium">
-            <Minus className="w-3.5 h-3.5 stroke-[3]" />
-            <span>Medium</span>
-          </div>
-        );
-      case 'low':
-        return (
-          <div className="flex items-center gap-1.5 text-xs text-zinc-500 font-medium">
-            <ArrowDown className="w-3.5 h-3.5 stroke-[2.5]" />
-            <span>Low</span>
-          </div>
-        );
-      case 'todo':
-        return (
-          <div className="flex items-center gap-1.5 text-xs text-zinc-400 font-medium">
-            <CircleDashed className="w-3.5 h-3.5 stroke-[2]" />
-            <span>Todo</span>
-          </div>
-        );
-    }
-  };
-
-  const renderChannel = (channel: TicketChannel) => {
-    switch (channel) {
-      case 'email':
-        return (
-          <div className="flex items-center gap-1.5 text-xs text-zinc-600 dark:text-zinc-400">
-            <Mail className="w-3.5 h-3.5 text-zinc-400" />
-            <span>Email</span>
-          </div>
-        );
-      case 'chat':
-        return (
-          <div className="flex items-center gap-1.5 text-xs text-zinc-600 dark:text-zinc-400">
-            <MessageSquare className="w-3.5 h-3.5 text-zinc-400" />
-            <span>Chat</span>
-          </div>
-        );
-      case 'web':
-        return (
-          <div className="flex items-center gap-1.5 text-xs text-zinc-600 dark:text-zinc-400">
-            <Globe className="w-3.5 h-3.5 text-zinc-400" />
-            <span>Web</span>
-          </div>
-        );
-      case 'slack':
-        return (
-          <div className="flex items-center gap-1.5 text-xs text-zinc-600 dark:text-zinc-400">
-            <Hash className="w-3.5 h-3.5 text-zinc-400" />
-            <span>Slack</span>
-          </div>
-        );
-    }
-  };
-
   return (
     <div className="bg-white dark:bg-[#151924] border border-zinc-200/80 dark:border-zinc-800/80 rounded-2xl overflow-hidden shadow-xs">
       {/* Bulk Action Header when items are selected */}
@@ -161,14 +75,14 @@ export function TableView() {
           <div className="flex items-center gap-2">
             <button
               onClick={handleBulkResolve}
-              className="flex items-center gap-1.5 px-3 py-1 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs font-medium rounded-lg text-emerald-600 hover:bg-emerald-50 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs font-medium rounded-lg text-emerald-600 hover:bg-emerald-50 transition-colors cursor-pointer"
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>Mark Resolved</span>
             </button>
             <button
               onClick={handleBulkDelete}
-              className="flex items-center gap-1.5 px-3 py-1 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs font-medium rounded-lg text-rose-600 hover:bg-rose-50 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs font-medium rounded-lg text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
             >
               <Trash2 className="w-3.5 h-3.5" />
               <span>Delete</span>
@@ -227,112 +141,15 @@ export function TableView() {
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-200/60 dark:divide-zinc-800/60 text-zinc-700 dark:text-zinc-300">
-            {sortedTickets.map((ticket) => {
-              const isSelected = selectedIds.includes(ticket.id);
-              const statusStyle = DESIGN_TOKENS.colors.status[ticket.status];
-              const healthStyle = DESIGN_TOKENS.colors.health[ticket.health];
-
-              return (
-                <tr
-                  key={ticket.id}
-                  onClick={() => setSelectedTicket(ticket)}
-                  className={`hover:bg-zinc-50/70 dark:hover:bg-zinc-800/40 transition-colors cursor-pointer ${
-                    isSelected ? 'bg-amber-50/30 dark:bg-amber-950/20' : ''
-                  }`}
-                >
-                  {/* Checkbox */}
-                  <td className="py-3.5 px-4" onClick={(e) => toggleSelectRow(e, ticket.id)}>
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => {}}
-                      className="rounded border-zinc-300 text-amber-500 focus:ring-amber-400 cursor-pointer"
-                    />
-                  </td>
-
-                  {/* ID */}
-                  <td className="py-3.5 px-3 font-mono text-xs text-zinc-400 dark:text-zinc-500 font-medium">
-                    #{ticket.id}
-                  </td>
-
-                  {/* Subject */}
-                  <td className="py-3.5 px-3 font-medium text-zinc-900 dark:text-zinc-100 max-w-xs md:max-w-md truncate">
-                    {ticket.subject}
-                  </td>
-
-                  {/* Status Pill */}
-                  <td className="py-3.5 px-3">
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border capitalize ${statusStyle.bg} ${statusStyle.text} ${statusStyle.border}`}
-                    >
-                      {statusStyle.label}
-                    </span>
-                  </td>
-
-                  {/* Priority */}
-                  <td className="py-3.5 px-3">{renderPriority(ticket.priority)}</td>
-
-                  {/* Assignee */}
-                  <td className="py-3.5 px-3">
-                    <div className="flex items-center gap-2">
-                      {ticket.assignee ? (
-                        <>
-                          {ticket.assignee.avatar ? (
-                            <img
-                              src={ticket.assignee.avatar}
-                              alt={ticket.assignee.name}
-                              className="w-5 h-5 rounded-full object-cover ring-1 ring-zinc-200 dark:ring-zinc-700"
-                            />
-                          ) : (
-                            <div className="w-5 h-5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[10px] font-semibold text-zinc-600 dark:text-zinc-300 flex items-center justify-center">
-                              {ticket.assignee.initials}
-                            </div>
-                          )}
-                          <span className="text-xs text-zinc-800 dark:text-zinc-200 font-medium">
-                            {ticket.assignee.name}
-                          </span>
-                        </>
-                      ) : (
-                        <div className="flex items-center gap-2 text-zinc-400">
-                          <div className="w-5 h-5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[10px] flex items-center justify-center ring-1 ring-dashed ring-zinc-300">
-                            --
-                          </div>
-                          <span className="text-xs">Unassigned</span>
-                        </div>
-                      )}
-                    </div>
-                  </td>
-
-                  {/* Category */}
-                  <td className="py-3.5 px-3 text-xs text-zinc-600 dark:text-zinc-400 capitalize">
-                    {CATEGORY_LABELS[ticket.category] || ticket.category}
-                  </td>
-
-                  {/* Channel */}
-                  <td className="py-3.5 px-3">{renderChannel(ticket.channel)}</td>
-
-                  {/* Health */}
-                  <td className="py-3.5 px-4">
-                    <div className="flex flex-col items-start gap-1">
-                      <div
-                        className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium border whitespace-nowrap ${healthStyle.bg} ${healthStyle.text} ${healthStyle.border}`}
-                      >
-                        <span className={`w-1.5 h-1.5 rounded-full ${healthStyle.dot}`} />
-                        <span>{healthStyle.label}</span>
-                      </div>
-                      {ticket.isEscalated && (
-                        <span
-                          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50 whitespace-nowrap"
-                          title="Escalated Ticket"
-                        >
-                          ⚠️ Escalated
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
+            {sortedTickets.map((ticket) => (
+              <TicketTableRow
+                key={ticket.id}
+                ticket={ticket}
+                isSelected={selectedIds.includes(ticket.id)}
+                onToggleSelect={(e) => toggleSelectRow(e, ticket.id)}
+                onClick={() => setSelectedTicket(ticket)}
+              />
+            ))}
 
             {sortedTickets.length === 0 && (
               <tr>

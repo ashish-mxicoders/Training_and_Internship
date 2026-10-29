@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Plus, AlertCircle, ChevronDown } from 'lucide-react';
 import { useTickets } from '@/lib/ticket-context';
-import { TicketCategory, TicketChannel, TicketPriority, TicketStatus, TicketHealth } from '@/types/ticket';
+import { TicketChannel, TicketPriority, TicketStatus, TicketHealth } from '@/types';
 import { TEAM_MEMBERS } from '@/lib/mock-data';
 
 export function NewTicketModal() {
@@ -65,13 +65,11 @@ export function NewTicketModal() {
       category,
       channel,
       health,
-      assignee: assignedMember,
+      assigneeId: assignedMember ? assignedMember.id : null,
       isEscalated: shouldEscalate,
-      customer: {
-        name: customerName.trim() || 'Client User',
-        company: companyName.trim() || 'Acme Partner',
-        email: customerEmail.trim() || 'contact@client.com',
-      },
+      customerName: customerName.trim() || 'Client User',
+      companyName: companyName.trim() || 'Acme Partner',
+      customerEmail: customerEmail.trim() || 'contact@client.com',
       dueDate: dueDate || new Date().toISOString().split('T')[0],
       tags: [category.toUpperCase(), channel.toUpperCase()],
     });

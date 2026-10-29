@@ -17,7 +17,7 @@ import {
   Plus,
 } from 'lucide-react';
 import { useTickets } from '@/lib/ticket-context';
-import { TicketCategory, TicketPriority, ViewFilter } from '@/types/ticket';
+import { TicketCategory, TicketPriority, ViewFilter } from '@/types';
 
 export function Sidebar() {
   const router = useRouter();

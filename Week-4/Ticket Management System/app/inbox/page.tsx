@@ -1,8 +1,12 @@
-'use client';
-
 import React from 'react';
 import Link from 'next/link';
+import { Metadata } from 'next';
 import { Inbox, Sparkles, ArrowRight, MessageSquare, Mail, Bell } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'Universal Inbox | Ticket Management System',
+  description: 'A single collaborative mailbox unifying customer emails and live chat',
+};
 
 export default function InboxPage() {
   return (

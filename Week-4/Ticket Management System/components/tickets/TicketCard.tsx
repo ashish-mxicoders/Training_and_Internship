@@ -11,7 +11,7 @@ import {
   Minus,
   CircleDashed,
 } from 'lucide-react';
-import { Ticket, TicketChannel, TicketPriority, TicketHealth } from '@/types/ticket';
+import { Ticket, TicketChannel, TicketPriority, TicketHealth } from '@/types';
 import { DESIGN_TOKENS } from '@/lib/design-system';
 
 interface TicketCardProps {

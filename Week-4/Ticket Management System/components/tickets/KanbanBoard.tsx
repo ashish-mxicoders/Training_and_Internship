@@ -14,8 +14,9 @@ import {
   RotateCcw,
   Sparkles,
 } from 'lucide-react';
-import { useTickets, ColumnSortType } from '@/lib/ticket-context';
-import { Ticket, TicketStatus, TicketPriority, TicketHealth } from '@/types/ticket';
+import { useTickets } from '@/lib/ticket-context';
+import { Ticket, TicketStatus, ColumnSortType } from '@/types';
+import { sortColumnTickets } from '@/lib/ticket-filters';
 import { TicketCard } from './TicketCard';
 
 export function KanbanBoard() {
@@ -94,45 +95,12 @@ export function KanbanBoard() {
     }
   };
 
-  // Sort helper function
-  const sortTickets = (tickets: Ticket[], sort: ColumnSortType): Ticket[] => {
-    if (sort === 'none') return tickets;
-    const copy = [...tickets];
-    const priorityWeights: Record<TicketPriority, number> = {
-      urgent: 5,
-      high: 4,
-      medium: 3,
-      low: 2,
-      todo: 1,
-    };
-    const healthWeights: Record<TicketHealth, number> = {
-      breached: 3,
-      warning: 2,
-      on_track: 1,
-    };
-
-    switch (sort) {
-      case 'newest':
-        return copy.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-      case 'oldest':
-        return copy.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
-      case 'priority_high':
-        return copy.sort((a, b) => priorityWeights[b.priority] - priorityWeights[a.priority]);
-      case 'priority_low':
-        return copy.sort((a, b) => priorityWeights[a.priority] - priorityWeights[b.priority]);
-      case 'health':
-        return copy.sort((a, b) => healthWeights[b.health] - healthWeights[a.health]);
-      default:
-        return copy;
-    }
-  };
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 pb-8 overflow-x-auto">
       {columns.map((col) => {
         const rawTickets = filteredTickets.filter((t) => t.status === col.id);
         const activeSort = columnSorts[col.id] || 'none';
-        const columnTickets = sortTickets(rawTickets, activeSort);
+        const columnTickets = sortColumnTickets(rawTickets, activeSort);
         const isHovered = dragOverColumn === col.id;
         const isMenuOpen = openMenuColumn === col.id;
 

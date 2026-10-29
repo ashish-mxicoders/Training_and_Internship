@@ -1,4 +1,4 @@
-import { Ticket, TicketAssignee } from '@/types/ticket';
+import { Ticket, TicketAssignee } from '@/types';
 
 export const CURRENT_USER: TicketAssignee = {
   id: 'usr-1',

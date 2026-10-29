@@ -1,4 +1,4 @@
-import { TicketCategory, TicketChannel, TicketHealth, TicketPriority, TicketStatus } from '@/types/ticket';
+import { TicketCategory, TicketChannel, TicketHealth, TicketPriority, TicketStatus } from '@/types';
 
 export const DESIGN_TOKENS = {
   colors: {
