@@ -9,10 +9,11 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 1. Allow Next.js internals, static files, and public images
+  // 1. Allow Next.js internals, static files, and public images / screenshots
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/images') ||
+    pathname.startsWith('/screenshots') ||
     pathname === '/favicon.ico'
   ) {
     return NextResponse.next();
@@ -63,7 +64,7 @@ export const config = {
     /*
      * Match all request paths except static files
      */
-    '/((?!_next/static|_next/image|favicon.ico|images).*)',
+    '/((?!_next/static|_next/image|favicon.ico|images|screenshots).*)',
   ],
 };
 

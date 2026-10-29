@@ -106,10 +106,10 @@ export async function POST(req: NextRequest) {
     });
 
     return response;
-  } catch (error: any) {
-    console.error('Signup error:', error);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Internal server error during registration';
     return NextResponse.json(
-      { error: error.message || 'Internal server error during registration' },
+      { error: message },
       { status: 500 }
     );
   }

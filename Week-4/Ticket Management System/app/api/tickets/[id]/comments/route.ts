@@ -69,10 +69,10 @@ export async function POST(
         timestamp: timeStr,
       },
     });
-  } catch (error: any) {
-    console.error('Add comment error:', error);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to add comment';
     return NextResponse.json(
-      { error: error.message || 'Failed to add comment' },
+      { error: message },
       { status: 500 }
     );
   }

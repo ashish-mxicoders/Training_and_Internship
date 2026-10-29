@@ -109,10 +109,10 @@ export async function GET(req: NextRequest) {
     );
 
     return NextResponse.json({ tickets: mappedTickets });
-  } catch (error: any) {
-    console.error('Fetch tickets error:', error);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to fetch tickets';
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch tickets' },
+      { error: message },
       { status: 500 }
     );
   }
@@ -148,10 +148,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Generate next ticket ID: count existing tickets
-    const countRes = await query(`SELECT COUNT(*) FROM tickets;`);
-    const count = parseInt(countRes.rows[0].count, 10) + 1;
-    const formattedId = `#-0${count < 10 ? '0' + count : count}`;
+    // Generate next ticket ID safely: scan existing IDs to avoid duplicate key conflicts
+    const allIdsRes = await query(`SELECT id FROM tickets;`);
+    let maxNum = 0;
+    for (const r of allIdsRes.rows) {
+      if (typeof r.id === 'string') {
+        const match = r.id.match(/#-0*(\d+)/);
+        if (match) {
+          const n = parseInt(match[1], 10);
+          if (!isNaN(n) && n > maxNum) {
+            maxNum = n;
+          }
+        }
+      }
+    }
+    const nextNum = maxNum + 1;
+    const formattedId = `#-0${nextNum < 10 ? '0' + nextNum : nextNum}`;
 
     // Calculate customer fields: if customer is logged in, use their info
     const finalCustId = user?.role === 'customer' ? user.userId : null;
@@ -233,10 +245,10 @@ export async function POST(req: NextRequest) {
       success: true,
       ticket,
     });
-  } catch (error: any) {
-    console.error('Create ticket error:', error);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to create ticket';
     return NextResponse.json(
-      { error: error.message || 'Failed to create ticket' },
+      { error: message },
       { status: 500 }
     );
   }

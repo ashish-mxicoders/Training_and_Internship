@@ -33,9 +33,10 @@ export async function GET(req: NextRequest) {
       authenticated: true,
       user: result.rows[0],
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Authentication verification failed';
     return NextResponse.json(
-      { authenticated: false, error: error.message },
+      { authenticated: false, error: message },
       { status: 500 }
     );
   }

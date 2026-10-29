@@ -16,9 +16,10 @@ export async function GET() {
        ORDER BY name ASC;`
     );
     return NextResponse.json({ users: res.rows });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to fetch users';
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch users' },
+      { error: message },
       { status: 500 }
     );
   }

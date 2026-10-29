@@ -4,7 +4,7 @@
 // We are NOT using any ORM (like Prisma or Drizzle) - only clean, raw SQL queries.
 // =====================================================================
 
-import { Pool } from 'pg';
+import { Pool, QueryResult, QueryResultRow } from 'pg';
 
 // We create a global variable to keep a single pool instance during development
 // to avoid creating multiple connections on Next.js hot reloads.
@@ -40,12 +40,14 @@ if (process.env.NODE_ENV !== 'production') {
 
 /**
  * Helper function to execute a raw SQL query with parameters.
- * Beginner-friendly wrapper so we don't have to write client connect/release everywhere.
+ * Parameterized queries ($1, $2, ...) prevent SQL injection risks.
  *
  * Example:
  * const result = await query('SELECT * FROM users WHERE email = $1', [email]);
- * console.log(result.rows);
  */
-export async function query(text: string, params?: any[]) {
-  return await pool.query(text, params);
+export async function query<R extends QueryResultRow = any>(
+  text: string,
+  params?: any[]
+): Promise<QueryResult<R>> {
+  return await pool.query<R>(text, params);
 }

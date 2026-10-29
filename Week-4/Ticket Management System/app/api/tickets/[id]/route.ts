@@ -99,9 +99,10 @@ export async function GET(
     return NextResponse.json({
       ticket: mapTicketRow(res.rows[0], commentsRes.rows),
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to fetch ticket';
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch ticket' },
+      { error: message },
       { status: 500 }
     );
   }
@@ -190,10 +191,10 @@ export async function PATCH(
       message: 'Ticket updated successfully',
       id: result.rows[0].id,
     });
-  } catch (error: any) {
-    console.error('Update ticket error:', error);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to update ticket';
     return NextResponse.json(
-      { error: error.message || 'Failed to update ticket' },
+      { error: message },
       { status: 500 }
     );
   }
@@ -225,10 +226,10 @@ export async function DELETE(
       success: true,
       message: 'Ticket deleted successfully',
     });
-  } catch (error: any) {
-    console.error('Delete ticket error:', error);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to delete ticket';
     return NextResponse.json(
-      { error: error.message || 'Failed to delete ticket' },
+      { error: message },
       { status: 500 }
     );
   }

@@ -18,12 +18,12 @@ export async function POST() {
       message: 'Database reset and seeded with default data successfully!',
       details: result,
     });
-  } catch (error: any) {
-    console.error('Error seeding database:', error);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to seed database';
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Failed to seed database',
+        error: message,
       },
       { status: 500 }
     );

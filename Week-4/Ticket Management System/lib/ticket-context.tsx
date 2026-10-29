@@ -222,8 +222,8 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
           setCategories(data.categories);
         }
       }
-    } catch (e) {
-      console.warn('Could not fetch categories from DB:', e);
+    } catch (_error) {
+      // Graceful fallback to default categories
     }
   }, []);
 
@@ -237,8 +237,8 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
           setTickets(data.tickets);
         }
       }
-    } catch (e) {
-      console.warn('Could not fetch tickets from DB, using local state:', e);
+    } catch (_error) {
+      // Graceful fallback to local state
     }
   }, []);
 
@@ -431,8 +431,8 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
           return data.ticket;
         }
       }
-    } catch (err) {
-      console.warn('API ticket creation failed, kept local:', err);
+    } catch (_err) {
+      // Kept in local state if API is unreachable
     }
 
     return localTicket;
@@ -458,8 +458,8 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
       });
-    } catch (e) {
-      console.warn('Could not sync status to database:', e);
+    } catch (_e) {
+      // Handled optimistically
     }
   };
 
@@ -495,8 +495,8 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
           dueDate: updates.dueDate,
         }),
       });
-    } catch (e) {
-      console.warn('Could not sync update to database:', e);
+    } catch (_e) {
+      // Handled optimistically
     }
   };
 
@@ -550,8 +550,8 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
           authorInitials,
         }),
       });
-    } catch (e) {
-      console.warn('Could not sync comment to database:', e);
+    } catch (_e) {
+      // Handled optimistically
     }
   };
 
@@ -576,8 +576,8 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
         const data = await res.json();
         return { success: false, error: data.error };
       }
-    } catch (e: any) {
-      console.warn('Could not delete from database:', e);
+    } catch (_e) {
+      // Handled optimistically
     }
 
     return { success: true };
@@ -595,8 +595,8 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
         await loadCategories();
         return true;
       }
-    } catch (e) {
-      console.warn('Failed to add category:', e);
+    } catch (_e) {
+      // Fallback
     }
     return false;
   };

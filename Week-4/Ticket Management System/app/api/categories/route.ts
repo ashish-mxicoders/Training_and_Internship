@@ -14,9 +14,10 @@ export async function GET() {
       `SELECT id, name, created_at FROM categories ORDER BY name ASC;`
     );
     return NextResponse.json({ categories: res.rows });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to fetch categories';
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch categories' },
+      { error: message },
       { status: 500 }
     );
   }
@@ -53,9 +54,10 @@ export async function POST(req: NextRequest) {
       success: true,
       category: res.rows[0],
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to create category';
     return NextResponse.json(
-      { error: error.message || 'Failed to create category' },
+      { error: message },
       { status: 500 }
     );
   }
