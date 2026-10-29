@@ -30,7 +30,6 @@ export interface TicketCustomer {
   company: string;
   email: string;
   avatar?: string;
-  tier: 'Enterprise' | 'Growth' | 'Starter';
 }
 
 export interface TicketComment {
@@ -38,7 +37,6 @@ export interface TicketComment {
   authorName: string;
   authorAvatar?: string;
   authorInitials: string;
-  isInternal: boolean;
   content: string;
   timestamp: string;
 }

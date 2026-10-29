@@ -71,7 +71,6 @@ export function NewTicketModal() {
         name: customerName.trim() || 'Client User',
         company: companyName.trim() || 'Acme Partner',
         email: customerEmail.trim() || 'contact@client.com',
-        tier: 'Enterprise',
       },
       dueDate: dueDate || new Date().toISOString().split('T')[0],
       tags: [category.toUpperCase(), channel.toUpperCase()],

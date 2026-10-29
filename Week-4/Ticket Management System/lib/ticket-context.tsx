@@ -56,7 +56,6 @@ export interface AppUser {
   avatar?: string;
   initials: string;
   company?: string;
-  tier?: string;
 }
 
 export interface CategoryItem {
@@ -338,7 +337,6 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
         role: 'customer',
         initials: 'SJ',
         company: 'Pine & Peak Inc.',
-        tier: 'Enterprise',
       };
       setCurrentUser(customerUser);
     }
@@ -384,7 +382,7 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
 
   // Action: Add Ticket (Sends to PostgreSQL backend)
   const addTicket = async (newTicketData: any): Promise<Ticket> => {
-    const tempId = `#-0${tickets.length + 1 < 10 ? '0' + (tickets.length + 1) : tickets.length + 1}`;
+    const tempId = String(Date.now());
     const today = new Date().toISOString().split('T')[0];
 
     const localTicket: Ticket = {
@@ -511,7 +509,6 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
       authorName,
       authorAvatar,
       authorInitials,
-      isInternal: false,
       content,
       timestamp: 'Just now',
     };

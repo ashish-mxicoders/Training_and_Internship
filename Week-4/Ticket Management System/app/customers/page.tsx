@@ -14,7 +14,6 @@ export default function CustomersPage() {
     name: string;
     contactName: string;
     contactEmail: string;
-    tier: 'Enterprise' | 'Growth' | 'Starter';
     tickets: typeof tickets;
   }>();
 
@@ -25,7 +24,6 @@ export default function CustomersPage() {
         name: comp,
         contactName: t.customer.name,
         contactEmail: t.customer.email,
-        tier: t.customer.tier,
         tickets: [t],
       });
     } else {

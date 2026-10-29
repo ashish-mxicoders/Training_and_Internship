@@ -50,10 +50,8 @@ export function Header() {
 
   // Dynamic breadcrumb text
   let currentPageTitle = 'Tickets';
-  if (pathname.startsWith('/tickets/') && pathname !== '/tickets/new') {
+  if (pathname.startsWith('/tickets/')) {
     currentPageTitle = 'Ticket Details';
-  } else if (pathname === '/tickets/new') {
-    currentPageTitle = 'New Ticket';
   } else if (pathname === '/analytics') {
     currentPageTitle = 'Analytics';
   } else if (pathname === '/customers') {

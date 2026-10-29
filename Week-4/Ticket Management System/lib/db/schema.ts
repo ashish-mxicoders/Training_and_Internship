@@ -34,7 +34,6 @@ export async function resetDatabaseSchema() {
       avatar TEXT,
       initials VARCHAR(10) NOT NULL,
       company VARCHAR(150),
-      tier VARCHAR(50) DEFAULT 'Enterprise',
       created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
     );
   `);
@@ -64,7 +63,6 @@ export async function resetDatabaseSchema() {
       customer_name VARCHAR(100),
       customer_company VARCHAR(150),
       customer_email VARCHAR(150),
-      customer_tier VARCHAR(50) DEFAULT 'Enterprise',
       due_date VARCHAR(50) NOT NULL,
       is_escalated BOOLEAN DEFAULT FALSE,
       is_past_due BOOLEAN DEFAULT FALSE,
@@ -83,7 +81,6 @@ export async function resetDatabaseSchema() {
       author_name VARCHAR(100) NOT NULL,
       author_avatar TEXT,
       author_initials VARCHAR(10) NOT NULL,
-      is_internal BOOLEAN DEFAULT FALSE,
       content TEXT NOT NULL,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
       timestamp_display VARCHAR(50) NOT NULL
@@ -107,7 +104,6 @@ export async function ensureTablesExist() {
       avatar TEXT,
       initials VARCHAR(10) NOT NULL,
       company VARCHAR(150),
-      tier VARCHAR(50) DEFAULT 'Enterprise',
       created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
     );
   `);
@@ -135,7 +131,6 @@ export async function ensureTablesExist() {
       customer_name VARCHAR(100),
       customer_company VARCHAR(150),
       customer_email VARCHAR(150),
-      customer_tier VARCHAR(50) DEFAULT 'Enterprise',
       due_date VARCHAR(50) NOT NULL,
       is_escalated BOOLEAN DEFAULT FALSE,
       is_past_due BOOLEAN DEFAULT FALSE,
@@ -153,7 +148,6 @@ export async function ensureTablesExist() {
       author_name VARCHAR(100) NOT NULL,
       author_avatar TEXT,
       author_initials VARCHAR(10) NOT NULL,
-      is_internal BOOLEAN DEFAULT FALSE,
       content TEXT NOT NULL,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
       timestamp_display VARCHAR(50) NOT NULL

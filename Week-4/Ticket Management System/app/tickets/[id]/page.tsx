@@ -28,16 +28,10 @@ export default function TicketDetailPage() {
   const router = useRouter();
   const { tickets, updateTicketStatus, updateTicket, addComment, deleteTicket, currentUser } = useTickets();
 
-  const ticketIdParam = params.id as string;
-  // Can be formatted like '001' or '#-001'
-  const normalizedId = ticketIdParam.startsWith('#-') ? ticketIdParam : `#-0${ticketIdParam.replace(/^0+/, '')}`;
+  const ticketId = params.id as string;
 
-  const ticket = tickets.find(
-    (t) =>
-      t.id === normalizedId ||
-      t.id.endsWith(ticketIdParam) ||
-      t.id.replace('#-', '') === ticketIdParam
-  );
+  // Simple direct match by ID (e.g. '1', '2', '20')
+  const ticket = tickets.find((t) => t.id === ticketId);
 
   const [commentInput, setCommentInput] = useState('');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -91,7 +85,7 @@ export default function TicketDetailPage() {
           </Link>
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="font-mono text-xs text-zinc-400 font-semibold">{ticket.id}</span>
+              <span className="font-mono text-xs text-zinc-400 font-semibold">#{ticket.id}</span>
               <span
                 className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium border ${healthStyle.bg} ${healthStyle.text} ${healthStyle.border}`}
               >

@@ -59,7 +59,7 @@ export function TicketModal() {
         <div className="px-6 py-4 border-b border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-between bg-zinc-50/50 dark:bg-[#121520]/50">
           <div className="flex items-center gap-2.5">
             <span className="font-mono text-sm font-semibold text-zinc-400 dark:text-zinc-500">
-              {selectedTicket.id}
+              #{selectedTicket.id}
             </span>
             <span
               className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${healthStyle.bg} ${healthStyle.text} ${healthStyle.border} flex items-center gap-1.5`}
@@ -76,7 +76,7 @@ export function TicketModal() {
 
           <div className="flex items-center gap-2">
             <Link
-              href={`/tickets/${selectedTicket.id.replace('#-', '')}`}
+              href={`/tickets/${selectedTicket.id}`}
               onClick={() => setSelectedTicket(null)}
               className="p-1.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
               title="Open full page view"

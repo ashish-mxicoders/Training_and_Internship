@@ -46,14 +46,12 @@ function mapTicketRow(row: any, comments: any[] = []) {
       company: row.customer_company || 'Organization',
       email: row.customer_email || 'client@example.com',
       avatar: row.customer_avatar || undefined,
-      tier: row.customer_tier || 'Enterprise',
     },
     comments: comments.map((c) => ({
       id: c.id,
       authorName: c.author_name,
       authorAvatar: c.author_avatar || undefined,
       authorInitials: c.author_initials,
-      isInternal: c.is_internal || false,
       content: c.content,
       timestamp: c.timestamp_display,
     })),
@@ -66,8 +64,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: rawId } = await params;
-    const ticketId = rawId.startsWith('#-') ? rawId : `#-0${rawId.padStart(2, '0')}`;
+    const { id } = await params;
 
     const res = await query(
       `
@@ -82,9 +79,9 @@ export async function GET(
       FROM tickets t
       LEFT JOIN users u_assignee ON t.assignee_id = u_assignee.id
       LEFT JOIN users u_cust ON t.customer_id = u_cust.id
-      WHERE t.id = $1 OR t.id = $2;
+      WHERE t.id = $1;
       `,
-      [rawId, ticketId]
+      [id]
     );
 
     if (res.rows.length === 0) {
@@ -115,7 +112,7 @@ export async function PATCH(
 ) {
   try {
     const user = await getSessionUser(req);
-    const { id: rawId } = await params;
+    const { id } = await params;
     const body = await req.json();
 
     // Check if user is customer trying to change status
@@ -170,13 +167,12 @@ export async function PATCH(
       return NextResponse.json({ message: 'No fields to update' });
     }
 
-    const ticketId = rawId.startsWith('#-') ? rawId : `#-0${rawId.padStart(2, '0')}`;
-    values.push(ticketId, rawId);
+    values.push(id);
 
     const updateSql = `
       UPDATE tickets
       SET ${updates.join(', ')}
-      WHERE id = $${idx++} OR id = $${idx++}
+      WHERE id = $${idx++}
       RETURNING id;
     `;
 
@@ -217,10 +213,9 @@ export async function DELETE(
       );
     }
 
-    const { id: rawId } = await params;
-    const ticketId = rawId.startsWith('#-') ? rawId : `#-0${rawId.padStart(2, '0')}`;
+    const { id } = await params;
 
-    await query(`DELETE FROM tickets WHERE id = $1 OR id = $2;`, [rawId, ticketId]);
+    await query(`DELETE FROM tickets WHERE id = $1;`, [id]);
 
     return NextResponse.json({
       success: true,

@@ -28,8 +28,8 @@ export async function seedDatabase() {
   for (const member of Object.values(TEAM_MEMBERS)) {
     await query(
       `
-      INSERT INTO users (id, name, email, password_hash, role, avatar, initials, company, tier)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      INSERT INTO users (id, name, email, password_hash, role, avatar, initials, company)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       ON CONFLICT (id) DO NOTHING;
       `,
       [
@@ -41,7 +41,6 @@ export async function seedDatabase() {
         member.avatar || null,
         member.initials,
         'Acme Support Desk',
-        'Enterprise',
       ]
     );
   }
@@ -49,8 +48,8 @@ export async function seedDatabase() {
   // Also insert a generic admin user for easy testing
   await query(
     `
-    INSERT INTO users (id, name, email, password_hash, role, avatar, initials, company, tier)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    INSERT INTO users (id, name, email, password_hash, role, avatar, initials, company)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
     ON CONFLICT (id) DO NOTHING;
     `,
     [
@@ -62,7 +61,6 @@ export async function seedDatabase() {
       '/images/avatar-jason.jpg',
       'SA',
       'Acme Support Desk',
-      'Enterprise',
     ]
   );
 
@@ -74,8 +72,8 @@ export async function seedDatabase() {
   const defaultCustomerId = 'cust-demo-1';
   await query(
     `
-    INSERT INTO users (id, name, email, password_hash, role, avatar, initials, company, tier)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    INSERT INTO users (id, name, email, password_hash, role, avatar, initials, company)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
     ON CONFLICT (email) DO NOTHING;
     `,
     [
@@ -87,7 +85,6 @@ export async function seedDatabase() {
       null,
       'SJ',
       'Pine & Peak Inc.',
-      'Enterprise',
     ]
   );
   customerMap['customer@client.com'] = defaultCustomerId;
@@ -107,8 +104,8 @@ export async function seedDatabase() {
 
       await query(
         `
-        INSERT INTO users (id, name, email, password_hash, role, avatar, initials, company, tier)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        INSERT INTO users (id, name, email, password_hash, role, avatar, initials, company)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         ON CONFLICT (email) DO NOTHING;
         `,
         [
@@ -120,7 +117,6 @@ export async function seedDatabase() {
           t.customer.avatar || null,
           initials || 'CU',
           t.customer.company,
-          t.customer.tier || 'Enterprise',
         ]
       );
     }
@@ -158,10 +154,10 @@ export async function seedDatabase() {
       INSERT INTO tickets (
         id, subject, description, status, priority, category_id,
         channel, health, assignee_id, customer_id, customer_name,
-        customer_company, customer_email, customer_tier, due_date,
+        customer_company, customer_email, due_date,
         is_escalated, is_past_due, tags, created_at, updated_at
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
       ON CONFLICT (id) DO NOTHING;
       `,
       [
@@ -178,7 +174,6 @@ export async function seedDatabase() {
         t.customer.name,
         t.customer.company,
         t.customer.email,
-        t.customer.tier,
         t.dueDate,
         t.isEscalated || false,
         t.isPastDue || false,
@@ -195,9 +190,9 @@ export async function seedDatabase() {
           `
           INSERT INTO comments (
             id, ticket_id, author_id, author_name, author_avatar,
-            author_initials, is_internal, content, timestamp_display
+            author_initials, content, timestamp_display
           )
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
           ON CONFLICT (id) DO NOTHING;
           `,
           [
@@ -207,7 +202,6 @@ export async function seedDatabase() {
             c.authorName,
             c.authorAvatar || null,
             c.authorInitials,
-            false,
             c.content,
             c.timestamp,
           ]

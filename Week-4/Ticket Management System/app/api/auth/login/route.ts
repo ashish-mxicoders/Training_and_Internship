@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
 
     // Step 1: Look up user in Neon PostgreSQL users table
     const result = await query(
-      `SELECT id, name, email, password_hash, role, avatar, initials, company, tier
+      `SELECT id, name, email, password_hash, role, avatar, initials, company
        FROM users
        WHERE LOWER(email) = LOWER($1)
        LIMIT 1;`,
@@ -73,7 +73,6 @@ export async function POST(req: NextRequest) {
         avatar: user.avatar,
         initials: user.initials,
         company: user.company,
-        tier: user.tier,
       },
     });
 

@@ -14,7 +14,7 @@ export async function POST(
 ) {
   try {
     const user = await getSessionUser(req);
-    const { id: rawId } = await params;
+    const { id: ticketId } = await params;
     const body = await req.json();
     const { content, authorName, authorInitials } = body;
 
@@ -25,7 +25,6 @@ export async function POST(
       );
     }
 
-    const ticketId = rawId.startsWith('#-') ? rawId : `#-0${rawId.padStart(2, '0')}`;
     const commentId = `cm-${Date.now().toString().slice(-6)}`;
 
     const finalAuthorName = user?.name || authorName || 'Support Team';
@@ -40,9 +39,9 @@ export async function POST(
       `
       INSERT INTO comments (
         id, ticket_id, author_id, author_name, author_avatar,
-        author_initials, is_internal, content, timestamp_display, created_at
+        author_initials, content, timestamp_display, created_at
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW());
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW());
       `,
       [
         commentId,
@@ -51,7 +50,6 @@ export async function POST(
         finalAuthorName,
         finalAuthorAvatar,
         finalAuthorInitials,
-        false,
         content.trim(),
         timeStr,
       ]
@@ -64,7 +62,6 @@ export async function POST(
         authorName: finalAuthorName,
         authorAvatar: finalAuthorAvatar,
         authorInitials: finalAuthorInitials,
-        isInternal: false,
         content: content.trim(),
         timestamp: timeStr,
       },

@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
 
     // Refresh fresh user data from database
     const result = await query(
-      `SELECT id, name, email, role, avatar, initials, company, tier
+      `SELECT id, name, email, role, avatar, initials, company
        FROM users
        WHERE id = $1
        LIMIT 1;`,

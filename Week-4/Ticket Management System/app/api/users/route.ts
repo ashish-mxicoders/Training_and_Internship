@@ -10,7 +10,7 @@ import { query } from '@/lib/db/db';
 export async function GET() {
   try {
     const res = await query(
-      `SELECT id, name, email, role, avatar, initials, company, tier
+      `SELECT id, name, email, role, avatar, initials, company
        FROM users
        WHERE role = 'admin'
        ORDER BY name ASC;`

@@ -252,7 +252,7 @@ export function TableView() {
 
                   {/* ID */}
                   <td className="py-3.5 px-3 font-mono text-xs text-zinc-400 dark:text-zinc-500 font-medium">
-                    {ticket.id}
+                    #{ticket.id}
                   </td>
 
                   {/* Subject */}

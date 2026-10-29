@@ -44,14 +44,12 @@ function mapTicketRow(row: any, comments: any[] = []) {
       company: row.customer_company || 'Organization',
       email: row.customer_email || 'client@example.com',
       avatar: row.customer_avatar || undefined,
-      tier: row.customer_tier || 'Enterprise',
     },
     comments: comments.map((c) => ({
       id: c.id,
       authorName: c.author_name,
       authorAvatar: c.author_avatar || undefined,
       authorInitials: c.author_initials,
-      isInternal: c.is_internal || false,
       content: c.content,
       timestamp: c.timestamp_display,
     })),
@@ -148,22 +146,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Generate next ticket ID safely: scan existing IDs to avoid duplicate key conflicts
+    // Generate next ticket ID: simple sequential number
     const allIdsRes = await query(`SELECT id FROM tickets;`);
     let maxNum = 0;
     for (const r of allIdsRes.rows) {
-      if (typeof r.id === 'string') {
-        const match = r.id.match(/#-0*(\d+)/);
-        if (match) {
-          const n = parseInt(match[1], 10);
-          if (!isNaN(n) && n > maxNum) {
-            maxNum = n;
-          }
-        }
+      const n = parseInt(String(r.id).replace(/[^0-9]/g, ''), 10);
+      if (!isNaN(n) && n > maxNum) {
+        maxNum = n;
       }
     }
-    const nextNum = maxNum + 1;
-    const formattedId = `#-0${nextNum < 10 ? '0' + nextNum : nextNum}`;
+    const ticketId = String(maxNum + 1);
 
     // Calculate customer fields: if customer is logged in, use their info
     const finalCustId = user?.role === 'customer' ? user.userId : null;
@@ -193,13 +185,13 @@ export async function POST(req: NextRequest) {
       INSERT INTO tickets (
         id, subject, description, status, priority, category_id,
         channel, health, assignee_id, customer_id, customer_name,
-        customer_company, customer_email, customer_tier, due_date,
+        customer_company, customer_email, due_date,
         is_escalated, is_past_due, tags, created_at, updated_at
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, NOW(), NOW());
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, NOW(), NOW());
       `,
       [
-        formattedId,
+        ticketId,
         subject.trim(),
         description?.trim() || 'No additional details provided.',
         finalStatus,
@@ -212,7 +204,6 @@ export async function POST(req: NextRequest) {
         finalCustName,
         finalCustCompany,
         finalCustEmail,
-        'Enterprise',
         finalDueDate,
         shouldEscalate,
         false,
@@ -236,7 +227,7 @@ export async function POST(req: NextRequest) {
       LEFT JOIN users u_cust ON t.customer_id = u_cust.id
       WHERE t.id = $1;
       `,
-      [formattedId]
+      [ticketId]
     );
 
     const ticket = mapTicketRow(newTicketRes.rows[0], []);

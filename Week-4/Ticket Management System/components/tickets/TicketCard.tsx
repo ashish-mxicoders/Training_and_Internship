@@ -72,7 +72,7 @@ export function TicketCard({ ticket, onClick, onDragStart }: TicketCardProps) {
           {renderPriorityIcon(ticket.priority)}
         </div>
         <span className="text-xs text-zinc-400 dark:text-zinc-500 font-mono font-medium">
-          {ticket.id}
+          #{ticket.id}
         </span>
       </div>
 

@@ -59,8 +59,8 @@ export async function POST(req: NextRequest) {
     // Insert user into PostgreSQL users table
     await query(
       `
-      INSERT INTO users (id, name, email, password_hash, role, initials, company, tier)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+      INSERT INTO users (id, name, email, password_hash, role, initials, company)
+      VALUES ($1, $2, $3, $4, $5, $6, $7);
       `,
       [
         userId,
@@ -70,7 +70,6 @@ export async function POST(req: NextRequest) {
         userRole,
         initials,
         company ? company.trim() : (userRole === 'admin' ? 'Acme Support' : 'Client Organization'),
-        'Enterprise',
       ]
     );
 
