@@ -48,6 +48,10 @@ export async function createTicketAction(
       return { success: false, error: 'Subject is required' };
     }
 
+    if (!description || !description.trim()) {
+      return { success: false, error: 'Description is required' };
+    }
+
     // Determine numerical ID (e.g. '1', '2', ..., '21')
     const maxRes = await query(`SELECT id FROM tickets;`);
     let maxNum = 0;

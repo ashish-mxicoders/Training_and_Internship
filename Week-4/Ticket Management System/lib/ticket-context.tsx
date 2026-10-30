@@ -120,8 +120,8 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
   // 1. Current Logged-in User
   const [currentUser, setCurrentUser] = useState<AppUser | null>(null);
 
-  // 2. Tickets & Selected Ticket State
-  const [tickets, setTickets] = useState<Ticket[]>(INITIAL_TICKETS);
+  // 2. Tickets & Selected Ticket State (Initialized to [] so DB state is source of truth)
+  const [tickets, setTickets] = useState<Ticket[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -202,7 +202,10 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
   // 8. Fetch Tickets from Database
   const refreshTickets = useCallback(async () => {
     try {
-      const res = await fetch('/api/tickets');
+      const res = await fetch('/api/tickets', {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' },
+      });
       if (res.ok) {
         const data = await res.json();
         if (data.tickets && Array.isArray(data.tickets)) {
@@ -416,6 +419,7 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
     if (selectedTicket?.id === id) setSelectedTicket(null);
 
     const res = await deleteTicketAction(id);
+    await refreshTickets();
     return { success: res.success, error: res.error };
   };
 

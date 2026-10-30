@@ -56,6 +56,9 @@ function mapTicketRow(row: any, comments: any[] = []) {
   };
 }
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // GET all tickets (filtered by Role)
 export async function GET(req: NextRequest) {
   try {
@@ -142,6 +145,13 @@ export async function POST(req: NextRequest) {
     if (!subject || !subject.trim()) {
       return NextResponse.json(
         { error: 'Ticket subject is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!description || !description.trim()) {
+      return NextResponse.json(
+        { error: 'Ticket description is required' },
         { status: 400 }
       );
     }

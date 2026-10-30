@@ -51,6 +51,11 @@ export function NewTicketModal() {
       return;
     }
 
+    if (!description.trim()) {
+      setError('Please provide a description for the issue');
+      return;
+    }
+
     const assignedMember = assigneeId
       ? Object.values(TEAM_MEMBERS).find((m) => m.id === assigneeId)
       : undefined;
@@ -59,7 +64,7 @@ export function NewTicketModal() {
 
     addTicket({
       subject: subject.trim(),
-      description: description.trim() || 'No additional details provided.',
+      description: description.trim(),
       status: status === 'escalated' ? 'open' : status,
       priority,
       category,
@@ -140,7 +145,7 @@ export function NewTicketModal() {
           {/* Description */}
           <div>
             <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 block mb-1">
-              Description / Reproduction Steps
+              Issue Description *
             </label>
             <textarea
               rows={3}
