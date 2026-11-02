@@ -3,20 +3,19 @@ const app = express();
 
 app.use(express.json());
 
-// Custom error class with HTTP status code
-class AppError extends Error {
-  constructor(message, statusCode) {
-    super(message);
-    this.statusCode = statusCode;
-  }
-}
+// Functional error creator (no classes / OOP)
+const createError = (message, statusCode = 500) => {
+  const error = new Error(message);
+  error.statusCode = statusCode;
+  return error;
+};
 
 // Simulating async database query using Promise
 const fetchUserFromDatabase = (userId) => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       if (userId === '99') {
-        reject(new AppError('User not found', 404));
+        reject(createError('User not found', 404));
       } else if (userId === 'fail') {
         reject(new Error('Database query failed'));
       } else {
@@ -62,7 +61,7 @@ app.get('/dashboard', async (req, res, next) => {
 
 // Fallback for unhandled routes (404)
 app.use((req, res, next) => {
-  next(new AppError(`Route ${req.method} ${req.originalUrl} not found`, 404));
+  next(createError(`Route ${req.method} ${req.originalUrl} not found`, 404));
 });
 
 // Centralized error handling middleware (4 arguments)
@@ -72,14 +71,12 @@ app.use((err, req, res, next) => {
 
   return res.status(statusCode).json({
     success: false,
-    error: {
-      statusCode,
-      message
-    }
+    statusCode,
+    message
   });
 });
 
 module.exports = {
-  AppError,
+  createError,
   fetchUserFromDatabase
 };
