@@ -80,3 +80,14 @@ module.exports = {
   createError,
   fetchUserFromDatabase
 };
+
+// Run standalone if executed directly via node 04_async_promises_try_catch_error_handling.js
+if (require.main === module) {
+  const PORT = 5004;
+  app.listen(PORT, () => {
+    console.log(`[04 Async & Error Handling] Running on http://localhost:${PORT}`);
+    console.log(`- GET  http://localhost:${PORT}/users/101 (Success 200)`);
+    console.log(`- GET  http://localhost:${PORT}/users/99 (Handled Error 404)`);
+    console.log(`- GET  http://localhost:${PORT}/dashboard (Parallel Promise.all)`);
+  });
+}

@@ -92,3 +92,13 @@ module.exports = {
   requireAuth,
   sanitizeBody
 };
+
+// Run standalone if executed directly via node 03_middleware_basics.js
+if (require.main === module) {
+  const PORT = 5003;
+  app.listen(PORT, () => {
+    console.log(`[03 Middleware Basics] Running on http://localhost:${PORT}`);
+    console.log(`- GET  http://localhost:${PORT}/api/public/status (Public with Request ID)`);
+    console.log(`- GET  http://localhost:${PORT}/api/private/profile (Requires Authorization: Bearer secret123)`);
+  });
+}

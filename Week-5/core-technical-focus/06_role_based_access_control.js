@@ -90,3 +90,15 @@ module.exports = {
   authorize
 };
 
+// Run standalone if executed directly via node 06_role_based_access_control.js
+if (require.main === module) {
+  const PORT = 5006;
+  app.listen(PORT, () => {
+    console.log(`[06 Role-Based Access Control] Running on http://localhost:${PORT}`);
+    console.log(`- GET    http://localhost:${PORT}/api/public (Public)`);
+    console.log(`- GET    http://localhost:${PORT}/api/profile (Header: Authorization: Bearer secret123)`);
+    console.log(`- GET    http://localhost:${PORT}/api/reports (Header: Authorization: Bearer secret123, x-user-role: manager)`);
+    console.log(`- DELETE http://localhost:${PORT}/api/admin/users/10 (Header: Authorization: Bearer secret123, x-user-role: admin)`);
+  });
+}
+

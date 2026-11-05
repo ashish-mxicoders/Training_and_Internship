@@ -85,3 +85,17 @@ router.route('/products/:productId')
   });
 
 module.exports = router;
+
+// Run standalone if executed directly via node 01_router_and_path_mapping.js
+if (require.main === module) {
+  const app = express();
+  app.use(express.json());
+  app.use('/api', router);
+  const PORT = 5001;
+  app.listen(PORT, () => {
+    console.log(`[01 Router & Path Mapping] Running on http://localhost:${PORT}`);
+    console.log(`- GET  http://localhost:${PORT}/api/users`);
+    console.log(`- GET  http://localhost:${PORT}/api/users/101`);
+    console.log(`- GET  http://localhost:${PORT}/api/search?keyword=express&page=1`);
+  });
+}

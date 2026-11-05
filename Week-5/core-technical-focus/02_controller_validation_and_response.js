@@ -116,3 +116,20 @@ module.exports = {
   getUserByIdController,
   searchUsersController
 };
+
+// Run standalone if executed directly via node 02_controller_validation_and_response.js
+if (require.main === module) {
+  const express = require('express');
+  const app = express();
+  app.use(express.json());
+  app.get('/api/users', searchUsersController);
+  app.get('/api/users/:id', getUserByIdController);
+  app.post('/api/users', createUserController);
+
+  const PORT = 5002;
+  app.listen(PORT, () => {
+    console.log(`[02 Controller & Validation] Running on http://localhost:${PORT}`);
+    console.log(`- GET  http://localhost:${PORT}/api/users`);
+    console.log(`- POST http://localhost:${PORT}/api/users (JSON body with validation)`);
+  });
+}

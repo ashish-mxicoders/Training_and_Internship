@@ -158,3 +158,15 @@ app.get('/api/v1/admin/reports', (req, res) => {
 });
 
 module.exports = app;
+
+// Run standalone if executed directly via node 05_restful_api_and_http_codes.js
+if (require.main === module) {
+  const PORT = 5005;
+  app.listen(PORT, () => {
+    console.log(`[05 RESTful API & HTTP Codes] Running on http://localhost:${PORT}`);
+    console.log(`- GET    http://localhost:${PORT}/api/v1/products (200 OK)`);
+    console.log(`- POST   http://localhost:${PORT}/api/v1/products (201 Created)`);
+    console.log(`- PUT    http://localhost:${PORT}/api/v1/products/1 (200 OK)`);
+    console.log(`- DELETE http://localhost:${PORT}/api/v1/products/1 (204 No Content)`);
+  });
+}
