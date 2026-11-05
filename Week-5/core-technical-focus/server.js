@@ -5,6 +5,7 @@ require('dotenv').config();
 
 const { requestLogger } = require('./middlewares/logger.middleware');
 const { errorHandler, createError } = require('./middlewares/error.middleware');
+const { swaggerUi, swaggerDocs, swaggerOptions } = require('./config/swagger');
 const apiRoutes = require('./routes/index');
 
 const app = express();
@@ -15,6 +16,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger);
+
+// Swagger Interactive API Documentation
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs, swaggerOptions));
 
 // Serve browser client for localStorage / sessionStorage sync
 app.use(express.static(path.join(__dirname, 'public')));
@@ -34,4 +38,5 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
   console.log(`API endpoints available at http://localhost:${PORT}/api`);
+  console.log(`Swagger Documentation available at http://localhost:${PORT}/api/docs`);
 });

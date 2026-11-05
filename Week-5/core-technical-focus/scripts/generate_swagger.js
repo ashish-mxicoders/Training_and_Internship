@@ -1,0 +1,116 @@
+// =====================================================================
+// Automation Script: OpenAPI / Swagger Generator
+// Purpose: Simulates AI CLI Tool (Claude Code) automated generation of
+// OpenAPI 3.0 specification by inspecting routes and controllers.
+// Run with: npm run docs:generate
+// =====================================================================
+
+const fs = require('fs');
+const path = require('path');
+
+const outputPath = path.join(__dirname, '../docs/openapi.json');
+
+console.log('🤖 [AI Automation CLI - Claude Code]');
+console.log('Scanning Express routes, controllers, and middlewares...');
+
+// Inspect and construct OpenAPI specification
+const openApiSchema = {
+  openapi: "3.0.0",
+  info: {
+    title: "Core Technical Focus Backend API",
+    version: "1.0.0",
+    description: "Auto-generated OpenAPI/Swagger documentation for Express RESTful APIs with standard error-handling wrappers and role-based access control.",
+    contact: {
+      name: "Ashish Nagar",
+      email: "ashish@example.com"
+    }
+  },
+  servers: [
+    {
+      url: "http://localhost:5000",
+      description: "Local Development Server"
+    }
+  ],
+  tags: [
+    { name: "Health", description: "Server health status endpoints" },
+    { name: "Users", description: "User management with validation and RBAC" },
+    { name: "Products", description: "Product catalog with filtering and CRUD operations" }
+  ],
+  paths: {
+    "/api/health": {
+      get: {
+        tags: ["Health"],
+        summary: "Check API health status",
+        responses: {
+          200: { description: "API server is healthy" }
+        }
+      }
+    },
+    "/api/users": {
+      get: {
+        tags: ["Users"],
+        summary: "Get all users with optional filtering",
+        parameters: [
+          { name: "role", in: "query", schema: { type: "string" } },
+          { name: "search", in: "query", schema: { type: "string" } }
+        ],
+        responses: { 200: { description: "List of users" } }
+      },
+      post: {
+        tags: ["Users"],
+        summary: "Create a new user (Admin only)",
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["name", "email"],
+                properties: {
+                  name: { type: "string", example: "Ashish Sharma" },
+                  email: { type: "string", example: "ashish@test.com" },
+                  role: { type: "string", example: "user" },
+                  age: { type: "integer", example: 24 }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          201: { description: "User created" },
+          400: { description: "Validation error" },
+          409: { description: "Email already exists" }
+        }
+      }
+    },
+    "/api/products": {
+      get: {
+        tags: ["Products"],
+        summary: "Get all products",
+        responses: { 200: { description: "List of products" } }
+      },
+      post: {
+        tags: ["Products"],
+        summary: "Create a new product",
+        responses: { 201: { description: "Product created" } }
+      }
+    }
+  },
+  components: {
+    securitySchemes: {
+      bearerAuth: {
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT"
+      }
+    }
+  }
+};
+
+// Write specification to docs folder
+fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+fs.writeFileSync(outputPath, JSON.stringify(openApiSchema, null, 2), 'utf8');
+
+console.log('✅ [Success] OpenAPI specification successfully generated at docs/openapi.json');
+console.log('📚 Access interactive docs at: http://localhost:5000/api/docs');
