@@ -114,3 +114,4 @@ fs.writeFileSync(outputPath, JSON.stringify(openApiSchema, null, 2), 'utf8');
 
 console.log('✅ [Success] OpenAPI specification successfully generated at docs/openapi.json');
 console.log('📚 Access interactive docs at: http://localhost:5000/api/docs');
+
