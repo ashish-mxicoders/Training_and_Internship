@@ -1,0 +1,57 @@
+### ==============================================================================
+### WEEK 6: TODO API TEST REQUESTS (REST Client / Thunder Client)
+### ==============================================================================
+### Agar aap VS Code me 'REST Client' ya 'Thunder Client' extension use karte hain,
+### toh aap direct har request ke upar 'Send Request' click karke test kar sakte hain.
+
+@baseUrl = http://localhost:5000
+
+### 1. Health Check (Server running status check karein)
+GET {{baseUrl}}/
+
+### 2. CREATE TODO - Naya Task 1 banayein
+POST {{baseUrl}}/api/todos
+Content-Type: application/json
+
+{
+  "title": "Learn PostgreSQL with Neon",
+  "description": "Understand connection strings, pools, and SQL queries in Node.js"
+}
+
+### 3. CREATE TODO - Naya Task 2 banayein
+POST {{baseUrl}}/api/todos
+Content-Type: application/json
+
+{
+  "title": "Complete Week-6 Internship Assignment",
+  "description": "Build and test the Todo CRUD backend API"
+}
+
+### 4. GET ALL TODOS - Saare tasks dekhein
+GET {{baseUrl}}/api/todos
+
+### 5. GET COMPLETED TODOS - Sirf completed tasks filter karein
+GET {{baseUrl}}/api/todos?completed=true
+
+### 6. GET PENDING TODOS - Sirf pending tasks filter karein
+GET {{baseUrl}}/api/todos?completed=false
+
+### 7. GET SINGLE TODO BY ID (Yahan ID change kar sakte hain, e.g. 1)
+GET {{baseUrl}}/api/todos/1
+
+### 8. UPDATE TODO BY ID - Task modify karein
+PUT {{baseUrl}}/api/todos/1
+Content-Type: application/json
+
+{
+  "title": "Master PostgreSQL & Neon DB (Updated)",
+  "description": "Completed understanding of connection pooling and parameters",
+  "is_completed": false
+}
+
+### 9. TOGGLE TODO STATUS - Task status complete/pending toggle karein
+PATCH {{baseUrl}}/api/todos/1/toggle
+
+### 10. DELETE TODO BY ID - Task delete karein
+DELETE {{baseUrl}}/api/todos/1
+

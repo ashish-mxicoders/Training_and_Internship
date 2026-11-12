@@ -1,0 +1,30 @@
+{
+  "name": "week-6-todo-backend-postgres",
+  "version": "1.0.0",
+  "description": "Week 6: Beginner-friendly Todo CRUD Backend using Express.js and Neon PostgreSQL",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test-db": "node config/db.js"
+  },
+  "keywords": [
+    "express",
+    "postgresql",
+    "neon",
+    "todo-crud",
+    "backend"
+  ],
+  "author": "Ashish",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
+
