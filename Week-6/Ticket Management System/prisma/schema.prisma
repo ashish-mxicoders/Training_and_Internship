@@ -1,0 +1,145 @@
+// ==============================================================================
+// MODERN PRISMA SCHEMA (Prisma 7.x)
+// Ticket Management System — Neon Serverless PostgreSQL
+// ==============================================================================
+// - Uses native PostgreSQL ENUM types for strong type safety
+// - Follows modern Prisma naming conventions (camelCase fields mapped to snake_case columns)
+// - Clean types without redundant legacy @db.VarChar constraints
+// - Proper relation mappings and performance indexes
+// ==============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ------------------------------------------------------------------------------
+// ENUMS (Native PostgreSQL Types)
+// ------------------------------------------------------------------------------
+
+enum Role {
+  admin
+  customer
+}
+
+enum TicketStatus {
+  open
+  pending
+  resolved
+  closed
+}
+
+enum Priority {
+  urgent
+  high
+  medium
+  low
+  todo
+}
+
+enum Channel {
+  email
+  chat
+  slack
+  web
+}
+
+enum Health {
+  on_track
+  warning
+  breached
+}
+
+// ------------------------------------------------------------------------------
+// MODELS
+// ------------------------------------------------------------------------------
+
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  role         Role      @default(customer)
+  avatar       String?
+  initials     String
+  company      String?
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  assignedTickets Ticket[]  @relation("TicketAssignee")
+  customerTickets Ticket[]  @relation("TicketCustomer")
+  comments        Comment[] @relation("CommentAuthor")
+
+  @@map("users")
+}
+
+model Category {
+  id        String   @id
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  tickets   Ticket[]
+
+  @@map("categories")
+}
+
+model Ticket {
+  id              String       @id
+  subject         String
+  description     String
+  status          TicketStatus @default(open)
+  priority        Priority     @default(medium)
+  categoryId      String?      @map("category_id")
+  channel         Channel      @default(web)
+  health          Health       @default(on_track)
+  assigneeId      String?      @map("assignee_id")
+  customerId      String?      @map("customer_id")
+  customerName    String?      @map("customer_name")
+  customerCompany String?      @map("customer_company")
+  customerEmail   String?      @map("customer_email")
+  dueDate         String       @map("due_date")
+  isEscalated     Boolean      @default(false) @map("is_escalated")
+  isPastDue       Boolean      @default(false) @map("is_past_due")
+  tags            String[]     @default([])
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  // Relations
+  category        Category?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  assignee        User?        @relation("TicketAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  customer        User?        @relation("TicketCustomer", fields: [customerId], references: [id], onDelete: SetNull)
+  comments        Comment[]
+
+  // Indexes for query performance
+  @@index([status])
+  @@index([priority])
+  @@index([assigneeId])
+  @@index([customerId])
+  @@index([categoryId])
+  @@map("tickets")
+}
+
+model Comment {
+  id               String   @id @default(cuid())
+  ticketId         String   @map("ticket_id")
+  authorId         String?  @map("author_id")
+  authorName       String   @map("author_name")
+  authorAvatar     String?  @map("author_avatar")
+  authorInitials   String   @map("author_initials")
+  content          String
+  createdAt        DateTime @default(now()) @map("created_at")
+  timestampDisplay String   @map("timestamp_display")
+
+  // Relations
+  ticket           Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  author           User?    @relation("CommentAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+
+  // Indexes
+  @@index([ticketId])
+  @@index([authorId])
+  @@map("comments")
+}
