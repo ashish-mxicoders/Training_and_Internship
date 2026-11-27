@@ -29,9 +29,15 @@ const { Pool } = require('pg');
 const { PrismaPg } = require('@prisma/adapter-pg');
 const { PrismaClient } = require('@prisma/client');
 
+const connectionString = process.env.DATABASE_URL || '';
+const shouldUseSsl =
+  !connectionString.includes('sslmode=disable') &&
+  (connectionString.includes('sslmode=require') ||
+    connectionString.includes('neon.tech'));
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
+  connectionString,
+  ...(shouldUseSsl ? { ssl: { rejectUnauthorized: false } } : {}),
 });
 
 const adapter = new PrismaPg(pool);

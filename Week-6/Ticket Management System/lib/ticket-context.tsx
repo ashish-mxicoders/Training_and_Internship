@@ -219,13 +219,15 @@ export function TicketProvider({ children }: { children: React.ReactNode }) {
 
   // 9. Initial Load on Client Mount
   useEffect(() => {
-    try {
-      if (typeof window !== 'undefined') {
-        const savedTheme = window.localStorage.getItem(THEME_KEY) as 'light' | 'dark' | null;
-        if (savedTheme) setTheme(savedTheme);
-        if (window.innerWidth < 768) setIsSidebarCollapsed(true);
-      }
-    } catch (e) {}
+    Promise.resolve().then(() => {
+      try {
+        if (typeof window !== 'undefined') {
+          const savedTheme = window.localStorage.getItem(THEME_KEY) as 'light' | 'dark' | null;
+          if (savedTheme) setTheme(savedTheme);
+          if (window.innerWidth < 768) setIsSidebarCollapsed(true);
+        }
+      } catch (_e) {}
+    });
 
     fetch('/api/auth/me')
       .then((res) => res.json())

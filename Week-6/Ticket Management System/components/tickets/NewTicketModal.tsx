@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X, Plus, AlertCircle, ChevronDown } from 'lucide-react';
 import { useTickets } from '@/lib/ticket-context';
 import { TicketChannel, TicketPriority, TicketStatus, TicketHealth } from '@/types';
@@ -27,20 +27,25 @@ export function NewTicketModal() {
   const [customerEmail, setCustomerEmail] = useState('');
   const [assigneeId, setAssigneeId] = useState('');
   const [dueDate, setDueDate] = useState(
-    new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    () => new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
   );
   const [isEscalated, setIsEscalated] = useState(false);
   const [error, setError] = useState('');
+  const [prevModalKey, setPrevModalKey] = useState(
+    `${isNewTicketModalOpen}:${initialModalStatus}`
+  );
 
-  // Whenever modal opens or initialModalStatus changes, preselect the clicked column status!
-  useEffect(() => {
+  // Sync status whenever modal opens or initialModalStatus changes (avoids setState in useEffect)
+  const modalKey = `${isNewTicketModalOpen}:${initialModalStatus}`;
+  if (modalKey !== prevModalKey) {
+    setPrevModalKey(modalKey);
     if (isNewTicketModalOpen) {
       setStatus(initialModalStatus || 'open');
       if (initialModalStatus === 'open') {
         setIsEscalated(false);
       }
     }
-  }, [isNewTicketModalOpen, initialModalStatus]);
+  }
 
   if (!isNewTicketModalOpen) return null;
 

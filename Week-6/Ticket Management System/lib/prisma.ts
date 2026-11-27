@@ -15,15 +15,19 @@ const globalForPrisma = globalThis as unknown as {
   pool: Pool | undefined;
 };
 
-const connectionString = process.env.DATABASE_URL;
+const connectionString = process.env.DATABASE_URL || '';
+
+// Enable SSL automatically for cloud databases (e.g., Neon), disable for local Docker/CI Postgres
+const shouldUseSsl =
+  !connectionString.includes('sslmode=disable') &&
+  (connectionString.includes('sslmode=require') ||
+    connectionString.includes('neon.tech'));
 
 export const pool =
   globalForPrisma.pool ??
   new Pool({
-    connectionString: connectionString || '',
-    ssl: {
-      rejectUnauthorized: false,
-    },
+    connectionString,
+    ...(shouldUseSsl ? { ssl: { rejectUnauthorized: false } } : {}),
     max: 10,
     idleTimeoutMillis: 30000,
   });

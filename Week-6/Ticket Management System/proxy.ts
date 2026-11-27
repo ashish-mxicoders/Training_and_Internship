@@ -20,8 +20,8 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 2. Allow public auth API routes (login, signup, logout, session check)
-  if (pathname.startsWith('/api/auth/')) {
+  // 2. Allow public auth & health-check API routes (used by login, Docker HEALTHCHECK, and CI smoke tests)
+  if (pathname.startsWith('/api/auth/') || pathname === '/api/health') {
     return NextResponse.next();
   }
 

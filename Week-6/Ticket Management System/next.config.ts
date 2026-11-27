@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Produce a minimal standalone server bundle for Docker production builds
+  output: "standalone",
   // Allow mobile devices and LAN devices on the local network to connect without security blocks
   allowedDevOrigins: [
     "localhost",
